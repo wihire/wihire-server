@@ -1,0 +1,28 @@
+{
+  "name": "wihire-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Jovanka Samudra",
+  "license": "ISC",
+  "engines": {
+    "npm": "please-use-yarn",
+    "yarn": ">= 1.17.3",
+    "node": ">= 12.5.0"
+  },
+  "devDependencies": {
+    "dotenv": "^16.3.1",
+    "nodemon": "^3.0.1"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.2.0",
+    "bcrypt": "^5.1.1",
+    "joi": "^17.10.1",
+    "jsonwebtoken": "^9.0.2",
+    "prisma": "^5.2.0"
+  }
+}
