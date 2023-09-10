@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+require('dotenv').config();
 
 const { notFound, error } = require('./api/middlewares/error');
 const routes = require('./routes');
