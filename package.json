@@ -1,10 +1,10 @@
 {
   "name": "wihire-server",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "main": "src/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start:dev": "nodemon src/server.js",
+    "start": "cross-env NODE_ENV=production node src/server.js"
   },
   "keywords": [],
   "author": "Jovanka Samudra",
@@ -15,12 +15,15 @@
     "node": ">= 12.5.0"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "dotenv": "^16.3.1",
     "nodemon": "^3.0.1"
   },
   "dependencies": {
     "@prisma/client": "^5.2.0",
     "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
     "joi": "^17.10.1",
     "jsonwebtoken": "^9.0.2",
     "prisma": "^5.2.0"
