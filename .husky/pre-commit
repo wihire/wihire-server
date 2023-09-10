@@ -1,0 +1,27 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo -e 'PRE-COMMIT'
+
+# Check Prettier standards
+echo -e ''
+echo 'Checking for prettier standards...'
+yarn prettier:check ||
+(
+  echo '❌ Prettier Check Failed.';
+  echo 'Prettier Check Failed. Run yarn prettier:format, add changes and try commit again.';
+  false;
+)
+
+# Check ESLint Standards
+echo -e ''
+echo 'Checking for linting errors...'
+yarn lint:check ||
+(
+  echo '❌ ESLint Check Failed.'
+  echo 'Eslnit check failed. Manually fixing, add changes and try to commit again.'
+  false;  
+)
+
+# If everything passes... Now we can commit
+echo '✅✅ Checking success and committing this now. ✅✅'

@@ -1,7 +1,7 @@
-const HelloController = require('../controllers/hello.controller');
+const HelloController = require('../controllers/hello.controller')
 
-const router = require('express').Router();
+const router = require('express').Router()
 
-router.get('/', HelloController.get);
+router.get('/', HelloController.get)
 
-module.exports = router;
+module.exports = router

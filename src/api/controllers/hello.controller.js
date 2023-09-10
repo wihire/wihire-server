@@ -1,15 +1,17 @@
-const { successResponse } = require('../../lib/response');
+const { successResponse } = require('../../lib/response')
 
 class HelloController {
-  static get = async (req, res, next) => {
+  static get = async (_, res, next) => {
     try {
-      return res.status(200).json(successResponse({
-        message: 'Hello World'
-      }));
+      return res.status(200).json(
+        successResponse({
+          message: 'Hello World',
+        }),
+      )
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 }
 
-module.exports = HelloController;
+module.exports = HelloController
