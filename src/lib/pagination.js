@@ -1,13 +1,13 @@
 exports.getPaginationStatus = (page, limit, totalData) => {
-  const totalPage = Math.ceil(totalData / limit)
-  const hasNextPage = page < totalPage
-  const hasPrevPage = page > 1
+  const totalPage = Math.ceil(totalData / limit);
+  const hasNextPage = page < totalPage;
+  const hasPrevPage = page > 1;
 
-  let prevPage = null
+  let prevPage = null;
   if (page > totalPage) {
-    prevPage = totalPage
+    prevPage = totalPage;
   } else if (hasPrevPage) {
-    prevPage = page - 1
+    prevPage = page - 1;
   }
 
   return {
@@ -17,5 +17,5 @@ exports.getPaginationStatus = (page, limit, totalData) => {
     prevPage,
     currentPage: page,
     limit,
-  }
-}
+  };
+};

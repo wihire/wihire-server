@@ -1,7 +1,7 @@
 const { successResponse } = require('../../lib/response')
 
 class HelloController {
-  static get = async (_, res, next) => {
+  static get = async (req, res, next) => {
     try {
       return res.status(200).json(
         successResponse({
