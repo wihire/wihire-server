@@ -1,4 +1,4 @@
-const { successResponse } = require('../../lib/response')
+const { successResponse } = require('../../lib/response');
 
 class HelloController {
   static get = async (req, res, next) => {
@@ -7,11 +7,11 @@ class HelloController {
         successResponse({
           message: 'Hello World',
         }),
-      )
+      );
     } catch (error) {
-      next(error)
+      next(error);
     }
-  }
+  };
 }
 
-module.exports = HelloController
+module.exports = HelloController;
