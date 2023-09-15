@@ -49,22 +49,23 @@ enum statusApplication {
   approved
   decline
   onReview
+  onProgress
 }
 
 model Profile {
-  id            String   @id @default(uuid())
-  slug          String?  @unique
-  name          String   @db.VarChar(255)
-  email         String   @unique
-  password      String   @db.VarChar(255)
-  isVerifyEmail Boolean  @default(false)
-  role          role
-  avatar        String?
-  address       String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @default(now())
-  user          User?
-  company       Company?
+  id              String   @id @default(uuid())
+  slug            String?  @unique
+  name            String   @db.VarChar(255)
+  email           String   @unique
+  password        String   @db.VarChar(255)
+  isVerifiedEmail Boolean  @default(false)
+  role            role
+  avatar          String?
+  address         String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now())
+  user            User?
+  company         Company?
 }
 
 model User {
@@ -130,7 +131,7 @@ model UserProject {
   userId String
   user   User   @relation(fields: [userId], references: [id])
 
-  projectName String   @db.VarChar(255)
+  name        String   @db.VarChar(255)
   role        String?  @db.VarChar(255)
   url         String?  @db.VarChar(255)
   description String?
@@ -178,7 +179,6 @@ model UserWorkExperience {
   title       String    @db.VarChar(255)
   startDate   DateTime
   endDate     DateTime?
-  isPresent   Boolean?
   description String?
 
   createdAt DateTime @default(now())
@@ -300,7 +300,7 @@ model ApplicationList {
   jobId  String
   job    Job    @relation(fields: [jobId], references: [id])
 
-  status    statusApplication
+  status    statusApplication @default(onProgress)
   resume    String?
   createdAt DateTime          @default(now())
   updatedAt DateTime          @default(now())
