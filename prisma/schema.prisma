@@ -9,3 +9,299 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum role {
+  user
+  company
+}
+
+enum gender {
+  female
+  male
+}
+
+enum level {
+  beginner
+  intermediate
+  expert
+}
+
+enum jobStatus {
+  posted
+  draft
+  closed
+}
+
+enum placeMethoded {
+  onsite
+  hybird
+  remote
+}
+
+enum jobType {
+  fulltime
+  partTime
+  internship
+  contract
+}
+
+enum statusApplication {
+  approved
+  decline
+  onReview
+}
+
+model Profile {
+  id            String   @id @default(uuid())
+  slug          String?  @unique
+  name          String   @db.VarChar(255)
+  email         String   @unique
+  password      String   @db.VarChar(255)
+  isVerifyEmail Boolean  @default(false)
+  role          role
+  avatar        String?
+  address       String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
+  user          User?
+  company       Company?
+}
+
+model User {
+  id        String  @id @default(uuid())
+  profileId String  @unique
+  profile   Profile @relation(fields: [profileId], references: [id])
+  salaryId  String  @unique
+  salary    Salary  @relation(fields: [salaryId], references: [id])
+
+  birthDate   DateTime
+  gender      gender
+  phoneNumber String   @db.VarChar
+  headline    String?  @db.VarChar(255)
+  about       String?
+  url         String?
+  resume      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+
+  userProject        UserProject[]
+  userEducation      UserEducation[]
+  userWorkExperience UserWorkExperience[]
+  userCertificate    UserCertificate[]
+  userSkill          UserSkill[]
+  savedJob           SavedJob[]
+  applicationList    ApplicationList[]
+}
+
+model Company {
+  id                     String               @id @default(uuid())
+  profileId              String               @unique
+  profile                Profile              @relation(fields: [profileId], references: [id])
+  companyScopeid         String
+  companyScope           CompanyScope         @relation(fields: [companyScopeid], references: [id])
+  companyTotalEmployeeId String
+  companyTotalEmployee   CompanyTotalEmployee @relation(fields: [companyTotalEmployeeId], references: [id])
+
+  headline    String?  @db.VarChar(255)
+  about       String?
+  websiteLink String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+}
+
+model CompanyTotalEmployee {
+  id        String    @id @default(uuid())
+  total     String    @db.VarChar(255)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now())
+  company   Company[]
+}
+
+model CompanyScope {
+  id        String    @id @default(uuid())
+  name      String    @db.VarChar(255)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now())
+  company   Company[]
+}
+
+model UserProject {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  projectName String   @db.VarChar(255)
+  role        String?  @db.VarChar(255)
+  url         String?  @db.VarChar(255)
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+}
+
+model UserCertificate {
+  id            String    @id @default(uuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  name          String    @db.VarChar(255)
+  organization  String    @db.VarChar(255)
+  issueDate     DateTime?
+  expiredDate   DateTime?
+  credentialId  String    @db.VarChar(255)
+  credentialUrl String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+model UserEducation {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  name      String   @db.VarChar(255)
+  startDate DateTime
+  EndDate   DateTime
+  field     String   @db.VarChar(255)
+  grade     Int?
+  maxGrade  Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+model UserWorkExperience {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  companyName String    @db.VarChar(255)
+  title       String    @db.VarChar(255)
+  startDate   DateTime
+  endDate     DateTime?
+  isPresent   Boolean?
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+model UserSkill {
+  id      String @id @default(uuid())
+  userId  String
+  user    User   @relation(fields: [userId], references: [id])
+  skillId String
+  skill   Skill  @relation(fields: [skillId], references: [id])
+  level   level
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+model Salary {
+  id String @id @default(uuid())
+
+  min Int
+  max Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  user User?
+  job  Job?
+}
+
+model Skill {
+  id    String @id @default(uuid())
+  title String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  userSkill UserSkill[]
+  jobSkill  JobSkill[]
+}
+
+model JobSkill {
+  id String @id @default(uuid())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  skillId String
+  skill   Skill  @relation(fields: [skillId], references: [id])
+
+  jobId String
+  job   Job    @relation(fields: [jobId], references: [id])
+}
+
+model SavedJob {
+  id String @id @default(uuid())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  jobId String
+  job   Job    @relation(fields: [jobId], references: [id])
+}
+
+model Job {
+  id   String @id @default(uuid())
+  slug String @unique
+
+  placeMethod          placeMethoded
+  jobType              jobType
+  title                String        @db.VarChar(255)
+  address              String        @db.VarChar(255)
+  description          String?
+  minimumQualification String?
+  benefits             String?
+  status               jobStatus
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  salaryId String @unique
+  salary   Salary @relation(fields: [salaryId], references: [id])
+
+  jobSkill        JobSkill[]
+  savedJob        SavedJob[]
+  applicationList ApplicationList[]
+  jobCategories   JobCategories[]
+}
+
+model Categories {
+  id            String          @id @default(uuid())
+  title         String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @default(now())
+  jobCategories JobCategories[]
+}
+
+model JobCategories {
+  id String @id @default(uuid())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  categoriesId String
+  categories   Categories @relation(fields: [categoriesId], references: [id])
+
+  jobId String
+  job   Job    @relation(fields: [jobId], references: [id])
+}
+
+model ApplicationList {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  jobId  String
+  job    Job    @relation(fields: [jobId], references: [id])
+
+  status    statusApplication
+  resume    String?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @default(now())
+}
