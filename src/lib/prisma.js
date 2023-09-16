@@ -8,7 +8,9 @@ if (isProduction) {
   prisma = new PrismaClient();
 } else {
   if (!global.prisma) {
-    global.prisma = new PrismaClient();
+    global.prisma = new PrismaClient({
+      log: ['query', 'info', 'warn', 'error'],
+    });
   }
 
   prisma = global.prisma;
