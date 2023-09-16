@@ -228,24 +228,24 @@ CREATE TABLE "Job" (
 );
 
 -- CreateTable
-CREATE TABLE "Categories" (
+CREATE TABLE "Category" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "Categories_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "JobCategories" (
+CREATE TABLE "JobCategory" (
     "id" TEXT NOT NULL,
     "categoriesId" TEXT NOT NULL,
     "jobId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "JobCategories_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "JobCategory_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -262,10 +262,16 @@ CREATE TABLE "ApplicationList" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Profile_id_key" ON "Profile"("id");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Profile_slug_key" ON "Profile"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Profile_email_key" ON "Profile"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_id_key" ON "User"("id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_profileId_key" ON "User"("profileId");
@@ -274,13 +280,61 @@ CREATE UNIQUE INDEX "User_profileId_key" ON "User"("profileId");
 CREATE UNIQUE INDEX "User_salaryExpectationId_key" ON "User"("salaryExpectationId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Company_id_key" ON "Company"("id");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Company_profileId_key" ON "Company"("profileId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CompanyTotalEmployee_id_key" ON "CompanyTotalEmployee"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CompanyScope_id_key" ON "CompanyScope"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "UserProject_id_key" ON "UserProject"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "UserCertificate_id_key" ON "UserCertificate"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "UserEducation_id_key" ON "UserEducation"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "UserWorkExperience_id_key" ON "UserWorkExperience"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "UserSkill_id_key" ON "UserSkill"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Salary_id_key" ON "Salary"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Skill_id_key" ON "Skill"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "JobSkill_id_key" ON "JobSkill"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "SavedJob_id_key" ON "SavedJob"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Job_id_key" ON "Job"("id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Job_slug_key" ON "Job"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Job_salaryId_key" ON "Job"("salaryId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Category_id_key" ON "Category"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "JobCategory_id_key" ON "JobCategory"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ApplicationList_id_key" ON "ApplicationList"("id");
 
 -- AddForeignKey
 ALTER TABLE "User" ADD CONSTRAINT "User_profileId_fkey" FOREIGN KEY ("profileId") REFERENCES "Profile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -334,10 +388,10 @@ ALTER TABLE "Job" ADD CONSTRAINT "Job_companyId_fkey" FOREIGN KEY ("companyId") 
 ALTER TABLE "Job" ADD CONSTRAINT "Job_salaryId_fkey" FOREIGN KEY ("salaryId") REFERENCES "Salary"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "JobCategories" ADD CONSTRAINT "JobCategories_categoriesId_fkey" FOREIGN KEY ("categoriesId") REFERENCES "Categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "JobCategory" ADD CONSTRAINT "JobCategory_categoriesId_fkey" FOREIGN KEY ("categoriesId") REFERENCES "Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "JobCategories" ADD CONSTRAINT "JobCategories_jobId_fkey" FOREIGN KEY ("jobId") REFERENCES "Job"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "JobCategory" ADD CONSTRAINT "JobCategory_jobId_fkey" FOREIGN KEY ("jobId") REFERENCES "Job"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ApplicationList" ADD CONSTRAINT "ApplicationList_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

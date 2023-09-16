@@ -53,7 +53,7 @@ enum StatusApplication {
 }
 
 model Profile {
-  id              String   @id @default(uuid())
+  id              String   @id @unique @default(uuid())
   slug            String   @unique
   name            String   @db.VarChar(255)
   email           String   @unique @db.VarChar(255)
@@ -70,32 +70,32 @@ model Profile {
 }
 
 model User {
-  id                  String   @id @default(uuid())
-  profileId           String   @unique
-  salaryExpectationId String   @unique
-  birthDate           DateTime
-  gender              Gender
-  phoneNumber         String   @db.VarChar(255)
-  headline            String?  @db.VarChar(255)
-  about               String?
-  url                 String?
-  resume              String?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @default(now())
+  id                    String   @id @unique @default(uuid())
+  profileId             String   @unique
+  salaryExpectationId   String   @unique
+  birthDate             DateTime
+  gender                Gender
+  phoneNumber           String   @db.VarChar(255)
+  headline              String?  @db.VarChar(255)
+  about                 String?
+  url                   String?
+  resume                String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @default(now())
 
-  profile             Profile  @relation(fields: [profileId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  salary              Salary   @relation(fields: [salaryExpectationId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  userProject         UserProject[]
-  userEducation       UserEducation[]
-  userWorkExperience  UserWorkExperience[]
-  userCertificate     UserCertificate[]
-  userSkill           UserSkill[]
-  savedJob            SavedJob[]
-  applicationList     ApplicationList[]
+  profile               Profile  @relation(fields: [profileId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  salary                Salary   @relation(fields: [salaryExpectationId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  userProjects          UserProject[]
+  userEducations        UserEducation[]
+  userWorkExperiencies  UserWorkExperience[]
+  userCertificates      UserCertificate[]
+  userSkills            UserSkill[]
+  savedJobs             SavedJob[]
+  applicationList       ApplicationList[]
 }
 
 model Company {
-  id                     String               @id @default(uuid())
+  id                     String               @id @unique @default(uuid())
   profileId              String               @unique
   companyScopeid         String
   companyTotalEmployeeId String
@@ -108,29 +108,29 @@ model Company {
   companyTotalEmployee   CompanyTotalEmployee @relation(fields: [companyTotalEmployeeId], references: [id])
   companyScope           CompanyScope         @relation(fields: [companyScopeid], references: [id])
   profile                Profile              @relation(fields: [profileId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  job                    Job[]
+  jobs                   Job[]
 }
 
 model CompanyTotalEmployee {
-  id        String    @id @default(uuid())
+  id        String    @id @unique @default(uuid())
   total     String    @db.VarChar(255)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now())
 
-  company   Company[]
+  companies Company[]
 }
 
 model CompanyScope {
-  id        String    @id @default(uuid())
+  id        String    @id @unique @default(uuid())
   name      String    @db.VarChar(255)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now())
 
-  company   Company[]
+  companies Company[]
 }
 
 model UserProject {
-  id          String   @id @default(uuid())
+  id          String   @id @unique @default(uuid())
   userId      String
   name        String   @db.VarChar(255)
   role        String?  @db.VarChar(255)
@@ -145,7 +145,7 @@ model UserProject {
 }
 
 model UserCertificate {
-  id            String    @id @default(uuid())
+  id            String    @id @unique @default(uuid())
   userId        String
   name          String    @db.VarChar(255)
   organization  String    @db.VarChar(255)
@@ -160,7 +160,7 @@ model UserCertificate {
 }
 
 model UserEducation {
-  id        String   @id @default(uuid())
+  id        String   @id @unique @default(uuid())
   userId    String
   name      String   @db.VarChar(255)
   startDate DateTime
@@ -175,7 +175,7 @@ model UserEducation {
 }
 
 model UserWorkExperience {
-  id          String    @id @default(uuid())
+  id          String    @id @unique @default(uuid())
   userId      String
   companyName String    @db.VarChar(255)
   title       String    @db.VarChar(255)
@@ -189,7 +189,7 @@ model UserWorkExperience {
 }
 
 model UserSkill {
-  id        String   @id @default(uuid())
+  id        String   @id @unique @default(uuid())
   userId    String
   skillId   String
   level     Level
@@ -201,7 +201,7 @@ model UserSkill {
 }
 
 model Salary {
-  id        String   @id @default(uuid()) 
+  id        String   @id @unique @default(uuid()) 
   min       Int
   max       Int?
   createdAt DateTime @default(now())
@@ -212,7 +212,7 @@ model Salary {
 }
 
 model Skill {
-  id        String      @id @default(uuid())
+  id        String      @id @unique @default(uuid())
   title     String      @db.VarChar(255)
   createdAt DateTime    @default(now())
   updatedAt DateTime    @default(now())
@@ -222,7 +222,7 @@ model Skill {
 }
 
 model JobSkill {
-  id        String   @id @default(uuid())
+  id        String   @id @unique @default(uuid())
   skillId   String
   jobId     String
   createdAt DateTime @default(now())
@@ -233,18 +233,18 @@ model JobSkill {
 }
 
 model SavedJob {
-  id        String @id @default(uuid())
+  id        String   @id @unique @default(uuid())
   userId    String
   jobId     String
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 
-  user   User   @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  job   Job    @relation(fields: [jobId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  job       Job      @relation(fields: [jobId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model Job {
-  id                   String        @id @default(uuid())
+  id                   String        @id @unique @default(uuid())
   slug                 String        @unique
   companyId            String
   salaryId             String?       @unique
@@ -261,34 +261,34 @@ model Job {
 
   company             Company        @relation(fields: [companyId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   salary              Salary?        @relation(fields: [salaryId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  jobSkill            JobSkill[]
-  savedJob            SavedJob[]
+  jobSkills           JobSkill[]
+  savedJobs           SavedJob[]
   applicationList     ApplicationList[]
-  jobCategories       JobCategories[]
+  jobCategories       JobCategory[]
 }
 
-model Categories {
-  id            String          @id @default(uuid())
+model Category {
+  id            String          @id @unique @default(uuid())
   title         String
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @default(now())
 
-  jobCategories JobCategories[]
+  jobCategories JobCategory[]
 }
 
-model JobCategories {
-  id           String     @id @default(uuid())
+model JobCategory {
+  id           String     @id @unique @default(uuid())
   categoriesId String
   jobId        String
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @default(now())
 
-  categories   Categories @relation(fields: [categoriesId], references: [id])
+  categories   Category   @relation(fields: [categoriesId], references: [id])
   job          Job        @relation(fields: [jobId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model ApplicationList {
-  id        String            @id @default(uuid())
+  id        String            @id @unique @default(uuid())
   userId    String
   jobId     String
   resume    String

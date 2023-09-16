@@ -42,5 +42,8 @@
     "joi": "^17.10.1",
     "jsonwebtoken": "^9.0.2",
     "prisma": "^5.2.0"
+  },
+  "prisma": {
+    "seed": "node prisma/seeds/index.js"
   }
 }
