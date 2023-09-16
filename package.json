@@ -11,7 +11,8 @@
     "lint:check": "eslint \"src/**/*.js\"",
     "prepare:husky": "husky install",
     "prisma": "prisma",
-    "prisma:migrate": "prisma migrate dev"
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:seed": "prisma db seed"
   },
   "keywords": [],
   "author": "Jovanka Samudra",
