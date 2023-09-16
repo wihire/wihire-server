@@ -11,45 +11,45 @@ datasource db {
 }
 
 enum role {
-  user
-  company
+  USER
+  COMPANY
 }
 
 enum gender {
-  female
-  male
+  FEMALE
+  MALE
 }
 
 enum level {
-  beginner
-  intermediate
-  expert
+  BEGINNER
+  INTERMEDIATE
+  EXPERT
 }
 
 enum jobStatus {
-  posted
-  draft
-  closed
+  POSTED
+  DRAFT
+  CLOSED
 }
 
 enum placeMethoded {
-  onsite
-  hybird
-  remote
+  ONSITE
+  HYBIRD
+  REMOTE
 }
 
 enum jobType {
-  fulltime
-  partTime
-  internship
-  contract
+  FULLTIME
+  PARTTIME
+  INTERNSHIP
+  CONTRACT
 }
 
 enum statusApplication {
-  approved
-  decline
-  onReview
-  onProgress
+  APPROVED
+  DECLINE
+  ONREVIEW
+  ONPROGRESS
 }
 
 model Profile {
@@ -300,7 +300,7 @@ model ApplicationList {
   jobId  String
   job    Job    @relation(fields: [jobId], references: [id])
 
-  status    statusApplication @default(onProgress)
+  status    statusApplication @default(ONPROGRESS)
   resume    String?
   createdAt DateTime          @default(now())
   updatedAt DateTime          @default(now())
