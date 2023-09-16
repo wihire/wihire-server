@@ -9,7 +9,9 @@
     "prettier:format": "prettier --write \"src/**/*.js\"",
     "lint": "eslint \"src/**/*.js\" --fix",
     "lint:check": "eslint \"src/**/*.js\"",
-    "prepare:husky": "husky install"
+    "prepare:husky": "husky install",
+    "prisma": "prisma",
+    "prisma:migrate": "prisma migrate dev"
   },
   "keywords": [],
   "author": "Jovanka Samudra",
