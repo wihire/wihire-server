@@ -11,15 +11,15 @@ const seedJob = require('./job');
 const seedApplicationList = require('./applicationList');
 
 async function main() {
-  seedCompanyTotalEmployee();
-  seedCompanyIndustryScope();
-  seedSkill();
-  seedCategories();
-  seedSalary();
-  seedCompany();
-  seedUser();
-  seedJob();
-  seedApplicationList();
+  await seedCompanyTotalEmployee();
+  await seedCompanyIndustryScope();
+  await seedSkill();
+  await seedCategories();
+  await seedSalary();
+  await seedCompany();
+  await seedUser();
+  await seedJob();
+  await seedApplicationList();
 };
 
 main()
