@@ -131,7 +131,7 @@ const COMPANY_SCOPES = [
   },
   {
     id: '7ad19cbd-4c48-4636-8fa2-6d1f61d4e8a1',
-    name: 'Education Management'
+    name: 'Education'
   },
   {
     id: '7ad19cbd-4c48-4636-8fa2-6d1f62d3e7a3',
@@ -168,6 +168,34 @@ const COMPANY_SCOPES = [
   {
     id: '7ad19cbd-4c48-4636-8fa2-6d1f62d3e8a2',
     name: 'Fishery'
+  },
+  {
+    id: '7ad19cbd-4c48-4636-8fa2-6d1f62d4e7a3',
+    name: 'Food & Beverages'
+  },
+  {
+    id: '7ad19cbd-4c48-4636-8fa2-6d1f62d4e7a4',
+    name: 'Food Production'
+  },
+  {
+    id: '7ad19cbd-4c48-4636-8fa2-6d1f62d4e7a6',
+    name: 'Furniture'
+  },
+  {
+    id: '7ad19cbd-4c48-4636-8fa2-6d1f62d4e7a8',
+    name: 'Refinery Oil & Gas'
+  },
+  {
+    id: '7ad19cbd-4c48-4636-8fa2-6d1f62d4e7a9',
+    name: 'Cryptocurrency'
+  },
+  {
+    id: '7ad19cbd-4c48-4636-8fa2-6d1f63d3e7a4',
+    name: 'Transportation & Travel'
+  },
+  {
+    id: '7ad19cbd-4c48-4636-8fa2-6d1f63d3e7a6',
+    name: 'E-Commerce'
   }
 ];
 

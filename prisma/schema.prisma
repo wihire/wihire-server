@@ -34,7 +34,7 @@ enum JobStatus {
 
 enum PlaceMethoded {
   ONSITE
-  HYBIRD
+  HYBRID
   REMOTE
 }
 
@@ -61,7 +61,8 @@ model Profile {
   isVerifiedEmail Boolean  @default(false)
   role            Role
   avatar          String?
-  address         String
+  province        String   @db.VarChar(255)
+  address         String   @db.VarChar(255)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @default(now())
 
@@ -72,7 +73,7 @@ model Profile {
 model User {
   id                    String   @id @unique @default(uuid())
   profileId             String   @unique
-  salaryExpectationId   String   @unique
+  salaryExpectationId   String?   @unique
   birthDate             DateTime
   gender                Gender
   phoneNumber           String   @db.VarChar(255)
@@ -84,7 +85,7 @@ model User {
   updatedAt             DateTime @default(now())
 
   profile               Profile  @relation(fields: [profileId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  salary                Salary   @relation(fields: [salaryExpectationId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  salary                Salary?   @relation(fields: [salaryExpectationId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   userProjects          UserProject[]
   userEducations        UserEducation[]
   userWorkExperiencies  UserWorkExperience[]
@@ -251,6 +252,7 @@ model Job {
   placeMethod          PlaceMethoded
   jobType              JobType
   title                String        @db.VarChar(255)
+  province             String        @db.VarChar(255)
   address              String        @db.VarChar(255)
   description          String?
   minimumQualification String?
@@ -294,8 +296,8 @@ model ApplicationList {
   resume    String
   createdAt DateTime          @default(now())
   updatedAt DateTime          @default(now())
+  status    StatusApplication @default(ONPROGRESS)
 
   user      User              @relation(fields: [userId], references: [id])
   job       Job               @relation(fields: [jobId], references: [id])
-  status    StatusApplication @default(ONPROGRESS)
 }
