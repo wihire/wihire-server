@@ -22,3 +22,15 @@ exports.decodeToken = (token, secretKey) =>
       }
     });
   });
+
+exports.generateAccessToken = (payload) => {
+  const accessToken = this.createToken({
+    payload,
+    secret: process.env.ACCESS_TOKEN_SECRET_KEY,
+    options: {
+      expiresIn: '7d',
+    },
+  });
+
+  return accessToken;
+};

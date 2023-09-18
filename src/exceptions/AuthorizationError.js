@@ -9,7 +9,7 @@ class AuthorizationError extends ClientError {
   constructor(message = AUTHORIZATION_ERR_MSG, options) {
     super(message, {
       type: options?.type ?? AUTHORIZATION_ERR,
-      statusCode: 403,
+      statusCode: 401,
     });
     this.name = 'Authorization Error';
   }
