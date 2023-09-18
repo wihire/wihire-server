@@ -21,6 +21,26 @@ class AuthController {
       next(error);
     }
   };
+
+  static registerUser = async (req, res, next) => {
+    try {
+      authValidation.validateRegisterPayload(req.body);
+
+      const profile = await AuthService.registerUser(req.body);
+
+      return res.status(201).json(
+        successResponse({
+          message: 'Success create user',
+          data: {
+            id: profile.id,
+            slug: profile.slug,
+          },
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 module.exports = AuthController;
