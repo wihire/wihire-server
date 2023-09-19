@@ -13,7 +13,7 @@ const authValidation = {
       });
     }
   },
-  validateRegisterPayload: (payload) => {
+  validateRegisterUserPayload: (payload) => {
     const validationResult = register.validate(payload);
 
     if (validationResult.error) {

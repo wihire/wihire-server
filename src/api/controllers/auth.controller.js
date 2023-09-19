@@ -25,7 +25,7 @@ class AuthController {
 
   static registerUser = async (req, res, next) => {
     try {
-      authValidation.validateRegisterPayload(req.body);
+      authValidation.validateRegisterUserPayload(req.body);
 
       const profile = await AuthService.registerUser(req.body);
 

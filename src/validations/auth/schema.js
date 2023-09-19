@@ -1,4 +1,5 @@
 const Joi = require('joi');
+const GENDER = require('../../constants/gender');
 
 exports.login = Joi.object({
   email: Joi.string().email().required(),
@@ -14,7 +15,9 @@ exports.register = Joi.object({
     .required()
     .label('confirmPassword')
     .options({ messages: { 'any.only': '{{#label}} does not match' } }),
-  gender: Joi.string().valid('FEMALE', 'MALE').required(),
+  gender: Joi.string()
+    .valid(...Object.values(GENDER))
+    .required(),
   province: Joi.string().required(),
   address: Joi.string().required(),
   birthDate: Joi.string().required(),

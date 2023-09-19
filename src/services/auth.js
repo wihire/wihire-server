@@ -100,7 +100,7 @@ class AuthService {
 
     const hashedPassword = await bcrypt.hash(companyData.password, 10);
 
-    const getCompanyScope = await prisma.companyScope.upsert({
+    const companyScope = await prisma.companyScope.upsert({
       where: {
         name: companyData.companyScope,
       },
@@ -110,20 +110,20 @@ class AuthService {
       update: {},
     });
 
-    if (!getCompanyScope) {
+    if (!companyScope) {
       throw new NotFoundError('Company scope not found', {
         statusCode: 404,
         type: NOT_FOUND_ERR,
       });
     }
 
-    const getCompanyTotalEmployee = await prisma.companyTotalEmployee.findUnique({
+    const companyTotalEmployee = await prisma.companyTotalEmployee.findUnique({
       where: {
         id: companyData.totalEmployee,
       },
     });
 
-    if (!getCompanyTotalEmployee) {
+    if (!companyTotalEmployee) {
       throw new NotFoundError('Company total employee not found', {
         statusCode: 404,
         type: NOT_FOUND_ERR,
@@ -143,12 +143,12 @@ class AuthService {
           create: {
             companyScope: {
               connect: {
-                id: getCompanyScope.id,
+                id: companyScope.id,
               },
             },
             companyTotalEmployee: {
               connect: {
-                id: getCompanyTotalEmployee.id,
+                id: companyTotalEmployee.id,
               },
             },
           },
