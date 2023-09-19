@@ -21,11 +21,22 @@ const uploadImage = multer({
   fileFilter: fileFilter(['image/png', 'image/jpg', 'image/jpeg']),
 });
 
+const uploadPDF = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5mb
+  },
+  fileFilter: fileFilter(['application/pdf']),
+});
+
 const upload = (type) => (engine, option) => (req, res, next) => {
   let uploadEngine;
   switch (type) {
     case 'image':
       uploadEngine = uploadImage;
+      break;
+    case 'pdf':
+      uploadEngine = uploadPDF;
       break;
   }
 
