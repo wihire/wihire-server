@@ -43,7 +43,7 @@ class ApplicantsService {
           },
         },
       },
-      include: {
+      select: {
         // applicationList: true,
         _count: {
           select: {

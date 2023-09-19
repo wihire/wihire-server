@@ -29,7 +29,14 @@ class ApplicantsController {
     const { slug } = req.params;
     try {
       const rejected = await ApplicantsService.rejectAllApplicants(slug);
-      return res.status(200).json(rejected);
+      return res.status(200).json(
+        successResponse({
+          messsage: 'Rejected all applicants',
+          data: {
+            ...rejected,
+          },
+        }),
+      );
     } catch (error) {
       next(error);
     }
