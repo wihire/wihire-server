@@ -23,3 +23,18 @@ exports.register = Joi.object({
     .required(),
   salaryExpectation: Joi.number().min(100_000).required(),
 });
+
+exports.registerCompany = Joi.object({
+  name: Joi.string().required(),
+  email: Joi.string().email().required(),
+  password: Joi.string().min(8).required(),
+  confirmPassword: Joi.string()
+    .equal(Joi.ref('password'))
+    .required()
+    .label('confirmPassword')
+    .options({ messages: { 'any.only': '{{#label}} does not match' } }),
+  province: Joi.string().required(),
+  address: Joi.string().required(),
+  companyScope: Joi.string().required(),
+  totalEmployee: Joi.string().required(),
+});

@@ -41,6 +41,27 @@ class AuthController {
       next(error);
     }
   };
+
+  static registerCompany = async (req, res, next) => {
+    console.log(req.body);
+    try {
+      authValidation.validateRegisterCompanyPayload(req.body);
+
+      const pofile = await AuthService.registerCompany(req.body);
+
+      return res.status(201).json(
+        successResponse({
+          message: 'Success create company',
+          data: {
+            id: pofile.id,
+            slug: pofile.slug,
+          },
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 module.exports = AuthController;

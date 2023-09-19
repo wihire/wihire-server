@@ -43,4 +43,6 @@ exports.generateVerifyEmailToken = (payload) => {
       expiresIn: '3m',
     },
   });
+
+  return verifyEmailToken;
 };

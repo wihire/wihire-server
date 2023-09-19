@@ -66,66 +66,66 @@ model Profile {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @default(now())
 
-  user            User?
-  company         Company?
+  user    User?
+  company Company?
 }
 
 model User {
-  id                    String   @id @unique @default(uuid())
-  profileId             String   @unique
-  salaryExpectationId   String?   @unique
-  birthDate             DateTime
-  gender                Gender
-  phoneNumber           String   @db.VarChar(255)
-  headline              String?  @db.VarChar(255)
-  about                 String?
-  url                   String?
-  resume                String?
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @default(now())
+  id                  String   @id @unique @default(uuid())
+  profileId           String   @unique
+  salaryExpectationId String?  @unique
+  birthDate           DateTime
+  gender              Gender
+  phoneNumber         String   @db.VarChar(255)
+  headline            String?  @db.VarChar(255)
+  about               String?
+  url                 String?
+  resume              String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @default(now())
 
-  profile               Profile  @relation(fields: [profileId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  salary                Salary?   @relation(fields: [salaryExpectationId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  userProjects          UserProject[]
-  userEducations        UserEducation[]
-  userWorkExperiencies  UserWorkExperience[]
-  userCertificates      UserCertificate[]
-  userSkills            UserSkill[]
-  savedJobs             SavedJob[]
-  applicationList       ApplicationList[]
+  profile              Profile              @relation(fields: [profileId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  salary               Salary?              @relation(fields: [salaryExpectationId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  userProjects         UserProject[]
+  userEducations       UserEducation[]
+  userWorkExperiencies UserWorkExperience[]
+  userCertificates     UserCertificate[]
+  userSkills           UserSkill[]
+  savedJobs            SavedJob[]
+  applicationList      ApplicationList[]
 }
 
 model Company {
-  id                     String               @id @unique @default(uuid())
-  profileId              String               @unique
+  id                     String   @id @unique @default(uuid())
+  profileId              String   @unique
   companyScopeid         String
   companyTotalEmployeeId String
-  headline               String?              @db.VarChar(255)
+  headline               String?  @db.VarChar(255)
   about                  String?
   websiteLink            String?
-  createdAt              DateTime             @default(now())
-  updatedAt              DateTime             @default(now())
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @default(now())
 
-  companyTotalEmployee   CompanyTotalEmployee @relation(fields: [companyTotalEmployeeId], references: [id])
-  companyScope           CompanyScope         @relation(fields: [companyScopeid], references: [id])
-  profile                Profile              @relation(fields: [profileId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  jobs                   Job[]
+  companyTotalEmployee CompanyTotalEmployee @relation(fields: [companyTotalEmployeeId], references: [id])
+  companyScope         CompanyScope         @relation(fields: [companyScopeid], references: [id])
+  profile              Profile              @relation(fields: [profileId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  jobs                 Job[]
 }
 
 model CompanyTotalEmployee {
-  id        String    @id @unique @default(uuid())
-  total     String    @db.VarChar(255)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now())
+  id        String   @id @unique @default(uuid())
+  total     String   @db.VarChar(255)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 
   companies Company[]
 }
 
 model CompanyScope {
-  id        String    @id @unique @default(uuid())
-  name      String    @db.VarChar(255)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now())
+  id        String   @id @unique @default(uuid())
+  name      String   @unique @db.VarChar(255)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 
   companies Company[]
 }
@@ -142,7 +142,7 @@ model UserProject {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now())
 
-  user        User     @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model UserCertificate {
@@ -157,7 +157,7 @@ model UserCertificate {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now())
 
-  user          User      @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model UserEducation {
@@ -172,7 +172,7 @@ model UserEducation {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 
-  user      User     @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model UserWorkExperience {
@@ -186,7 +186,7 @@ model UserWorkExperience {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @default(now())
 
-  user        User      @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model UserSkill {
@@ -197,26 +197,26 @@ model UserSkill {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 
-  skill     Skill    @relation(fields: [skillId], references: [id])
-  user      User     @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  skill Skill @relation(fields: [skillId], references: [id])
+  user  User  @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model Salary {
-  id        String   @id @unique @default(uuid()) 
+  id        String   @id @unique @default(uuid())
   min       Int
   max       Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 
-  user      User?
-  job       Job?
+  user User?
+  job  Job?
 }
 
 model Skill {
-  id        String      @id @unique @default(uuid())
-  title     String      @db.VarChar(255)
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @default(now())
+  id        String   @id @unique @default(uuid())
+  title     String   @db.VarChar(255)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 
   userSkill UserSkill[]
   jobSkill  JobSkill[]
@@ -229,8 +229,8 @@ model JobSkill {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 
-  skill     Skill    @relation(fields: [skillId], references: [id])
-  job       Job      @relation(fields: [jobId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  skill Skill @relation(fields: [skillId], references: [id])
+  job   Job   @relation(fields: [jobId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model SavedJob {
@@ -240,8 +240,8 @@ model SavedJob {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 
-  user      User     @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  job       Job      @relation(fields: [jobId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  job  Job  @relation(fields: [jobId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model Job {
@@ -261,32 +261,32 @@ model Job {
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @default(now())
 
-  company             Company        @relation(fields: [companyId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  salary              Salary?        @relation(fields: [salaryId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  jobSkills           JobSkill[]
-  savedJobs           SavedJob[]
-  applicationList     ApplicationList[]
-  jobCategories       JobCategory[]
+  company         Company           @relation(fields: [companyId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  salary          Salary?           @relation(fields: [salaryId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  jobSkills       JobSkill[]
+  savedJobs       SavedJob[]
+  applicationList ApplicationList[]
+  jobCategories   JobCategory[]
 }
 
 model Category {
-  id            String          @id @unique @default(uuid())
-  title         String
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @default(now())
+  id        String   @id @unique @default(uuid())
+  title     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 
   jobCategories JobCategory[]
 }
 
 model JobCategory {
-  id           String     @id @unique @default(uuid())
+  id           String   @id @unique @default(uuid())
   categoriesId String
   jobId        String
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
 
-  categories   Category   @relation(fields: [categoriesId], references: [id])
-  job          Job        @relation(fields: [jobId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  categories Category @relation(fields: [categoriesId], references: [id])
+  job        Job      @relation(fields: [jobId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model ApplicationList {
@@ -298,6 +298,6 @@ model ApplicationList {
   updatedAt DateTime          @default(now())
   status    StatusApplication @default(ONPROGRESS)
 
-  user      User              @relation(fields: [userId], references: [id])
-  job       Job               @relation(fields: [jobId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+  job  Job  @relation(fields: [jobId], references: [id])
 }
