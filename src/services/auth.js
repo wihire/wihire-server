@@ -32,7 +32,12 @@ class AuthService {
     };
     const accessToken = generateAccessToken(accessTokenPayload);
 
-    return accessToken;
+    return {
+      accessToken,
+      profile: {
+        isVerifiedEmail: profile.isVerifiedEmail,
+      },
+    };
   };
 
   static registerUser = async (userData) => {

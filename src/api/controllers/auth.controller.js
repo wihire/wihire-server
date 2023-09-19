@@ -7,13 +7,14 @@ class AuthController {
     try {
       authValidation.validateLoginPayload(req.body);
 
-      const accessToken = await AuthService.login(req.body);
+      const { accessToken, profile } = await AuthService.login(req.body);
 
       return res.status(200).json(
         successResponse({
           message: 'Login success',
           data: {
-            accessToken,
+            accessToken: profile.isVerifiedEmail ? accessToken : null,
+            profile,
           },
         }),
       );

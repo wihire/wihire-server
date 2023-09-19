@@ -38,13 +38,17 @@
   "dependencies": {
     "@prisma/client": "^5.2.0",
     "bcrypt": "^5.1.1",
+    "cloudinary": "^1.40.0",
     "cors": "^2.8.5",
+    "datauri": "^4.1.0",
     "express": "^4.18.2",
+    "firebase": "^10.4.0",
     "joi": "^17.10.1",
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^6.9.5",
-    "prisma": "^5.2.0",
     "slugify": "^1.6.6"
+    "multer": "^1.4.5-lts.1",
+    "prisma": "^5.2.0"
   },
   "prisma": {
     "seed": "node prisma/seeds/index.js"
