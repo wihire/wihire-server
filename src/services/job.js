@@ -13,19 +13,23 @@ class JobService {
 
     return savedJob;
   };
+
   static saveJob = async ({ jobSlug, userId }) => {
     const job = await prisma.job.findUnique({
       where: {
         slug: jobSlug,
       },
     });
+
     if (!job) {
       throw new NotFoundError('Job not found');
     }
+
     const savedJob = await JobService.getSavedJob({
       jobId: job.id,
       userId,
     });
+
     if (savedJob) {
       throw new InvariantError('You already save this job');
     }
@@ -36,6 +40,7 @@ class JobService {
         userId,
       },
     });
+
     return newSavedJob;
   };
 
@@ -45,16 +50,20 @@ class JobService {
         slug: jobSlug,
       },
     });
+
     if (!job) {
       throw new NotFoundError('Job not found');
     }
+
     const savedJob = await JobService.getSavedJob({
       jobId: job.id,
       userId,
     });
+
     if (!savedJob) {
       throw new NotFoundError('Saved job not found');
     }
+
     await prisma.savedJob.delete({
       where: {
         id: savedJob.id,

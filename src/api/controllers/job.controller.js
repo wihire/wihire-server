@@ -40,7 +40,6 @@ class JobController {
         }),
       );
     } catch (error) {
-      console.error('Error:', error);
       next(error);
     }
   };
