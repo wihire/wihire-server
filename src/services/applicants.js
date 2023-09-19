@@ -19,6 +19,49 @@ class ApplicantsService {
     });
     return jobs[0];
   };
+
+  // Declines all applicant that is not "APPROVED"
+  static rejectAllApplicants = async (jobSlug) => {
+    const rejectAll = await prisma.job.update({
+      where: {
+        slug: jobSlug,
+      },
+      data: {
+        applicationList: {
+          updateMany: {
+            where: {
+              NOT: [
+                {
+                  status: 'APPROVED',
+                },
+              ],
+              // status: {}
+            },
+            data: {
+              status: 'DECLINE',
+            },
+          },
+        },
+      },
+      include: {
+        // applicationList: true,
+        _count: {
+          select: {
+            applicationList: {
+              where: {
+                NOT: [
+                  {
+                    status: 'APPROVED',
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    });
+    return rejectAll;
+  };
 }
 
 module.exports = ApplicantsService;

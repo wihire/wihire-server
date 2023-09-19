@@ -24,6 +24,16 @@ class ApplicantsController {
       next(error);
     }
   };
+
+  static rejectAllController = async (req, res, next) => {
+    const { slug } = req.params;
+    try {
+      const rejected = await ApplicantsService.rejectAllApplicants(slug);
+      return res.status(200).json(rejected);
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 module.exports = ApplicantsController;
