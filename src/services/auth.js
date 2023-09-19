@@ -55,7 +55,7 @@ class AuthService {
 
     const newProfile = await prisma.profile.create({
       data: {
-        slug: uniqueSlug(userData.name),
+        slug: uniqueSlug(userData.name).toLowerCase(),
         name: userData.name,
         email: userData.email,
         password: hashedPassword,
@@ -132,7 +132,7 @@ class AuthService {
 
     const newProfile = await prisma.profile.create({
       data: {
-        slug: uniqueSlug(companyData.name),
+        slug: uniqueSlug(companyData.name).toLowerCase(),
         name: companyData.name,
         email: companyData.email,
         password: hashedPassword,
