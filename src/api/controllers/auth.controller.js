@@ -43,7 +43,6 @@ class AuthController {
   };
 
   static registerCompany = async (req, res, next) => {
-    console.log(req.body);
     try {
       authValidation.validateRegisterCompanyPayload(req.body);
 
