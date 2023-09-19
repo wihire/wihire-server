@@ -7,6 +7,6 @@ const applicantsRoute = require('./api/routes/applicants.route');
  * api routes
  */
 router.use('/api/auth', authRoute);
-router.use('/jobs', applicantsRoute);
+router.use('/api/jobs', applicantsRoute);
 
 module.exports = router;

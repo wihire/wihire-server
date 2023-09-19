@@ -85,7 +85,7 @@ model User {
   updatedAt             DateTime @default(now())
 
   profile               Profile  @relation(fields: [profileId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  salary                Salary?   @relation(fields: [salaryExpectationId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  salaryExpectation     Salary?   @relation(fields: [salaryExpectationId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   userProjects          UserProject[]
   userEducations        UserEducation[]
   userWorkExperiencies  UserWorkExperience[]
