@@ -5,7 +5,11 @@ class JobService {
   static create = async (companyId, payload) => {
     const newJob = await prisma.job.create({
       data: {
-        companyId,
+        company: {
+          connect: {
+            id: companyId
+          }
+          },
         slug: uniqueSlug(payload.title),
         placeMethod: payload.placeMethod,
         jobType: payload.jobType,
@@ -22,10 +26,11 @@ class JobService {
             max: payload.maximalSalary,
           },
         },
+        jobCategories: {
+          create: payload.categoryAttributes
+        }
       },
-      include: {
-        salary: true,
-      },
+      
     });
 
     return newJob;
