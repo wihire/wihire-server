@@ -7,11 +7,11 @@ const router = require('express').Router();
 
 router.post('/:slug/save', authentication, authorization([ROLE.USER]), JobController.saveJob);
 router.delete('/:slug/unsave', authentication, authorization([ROLE.USER]), JobController.unsaveJob);
-router.delete(
-  '/:slug/unsave',
+router.get(
+  '/:slug/applicants',
   authentication,
   authorization([ROLE.COMPANY]),
-  JobController.unsaveJob,
+  JobController.getApplicants,
 );
 
 module.exports = router;
