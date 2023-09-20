@@ -7,3 +7,7 @@ exports.uniqueSlug = (str) => {
 
   return `${slug}-${uniqueId}`;
 };
+
+exports.isNumber = (value) => {
+  return !isNaN(Number(value));
+};
