@@ -3,8 +3,9 @@ const JobService = require('../../services/job');
 
 class JobController {
   static saveJob = async (req, res, next) => {
-    const { slug: jobSlug } = req.params;
     try {
+      const { slug: jobSlug } = req.params;
+
       const savedJob = await JobService.saveJob({
         jobSlug,
         userId: req.user.user.id,
@@ -29,6 +30,7 @@ class JobController {
   static unsaveJob = async (req, res, next) => {
     try {
       const { slug: jobSlug } = req.params;
+
       await JobService.unsaveJob({
         jobSlug,
         userId: req.user.user.id,
