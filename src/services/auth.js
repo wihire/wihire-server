@@ -67,7 +67,7 @@ class AuthService {
             birthDate: userData.birthDate,
             gender: userData.gender,
             phoneNumber: userData.phoneNumber,
-            salary: {
+            salaryExpectation: {
               create: {
                 min: userData.salaryExpectation,
               },
@@ -78,7 +78,7 @@ class AuthService {
       include: {
         user: {
           include: {
-            salary: true,
+            salaryExpectation: true,
           },
         },
       },
