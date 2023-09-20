@@ -84,15 +84,15 @@ model User {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @default(now())
 
-  profile               Profile  @relation(fields: [profileId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  salaryExpectation     Salary?   @relation(fields: [salaryExpectationId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  userProjects          UserProject[]
-  userEducations        UserEducation[]
-  userWorkExperiencies  UserWorkExperience[]
-  userCertificates      UserCertificate[]
-  userSkills            UserSkill[]
-  savedJobs             SavedJob[]
-  applicationList       ApplicationList[]
+  profile              Profile              @relation(fields: [profileId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  salaryExpectation    Salary?              @relation(fields: [salaryExpectationId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  userProjects         UserProject[]
+  userEducations       UserEducation[]
+  userWorkExperiencies UserWorkExperience[]
+  userCertificates     UserCertificate[]
+  userSkills           UserSkill[]
+  savedJobs            SavedJob[]
+  applicationList      ApplicationList[]
 }
 
 model Company {
@@ -298,6 +298,6 @@ model ApplicationList {
   updatedAt DateTime          @default(now())
   status    StatusApplication @default(ONPROGRESS)
 
-  user User @relation(fields: [userId], references: [id])
-  job  Job  @relation(fields: [jobId], references: [id])
+  user User @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  job  Job  @relation(fields: [jobId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }

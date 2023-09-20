@@ -86,6 +86,24 @@ class JobService {
       },
     });
   };
+
+  static deleteJob = async ({ jobSlug }) => {
+    const job = await prisma.job.findUnique({
+      where: {
+        slug: jobSlug,
+      },
+    });
+
+    if (!job) {
+      throw new NotFoundError('Job not Found');
+    }
+
+    await prisma.job.delete({
+      where: {
+        slug: jobSlug,
+      },
+    });
+  };
 }
 
 module.exports = JobService;
