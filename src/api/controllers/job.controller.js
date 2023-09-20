@@ -79,6 +79,24 @@ class JobController {
       next(error);
     }
   };
+
+  static rejectAllApplicant = async (req, res, next) => {
+    const { slug } = req.params;
+    try {
+      const rejectedApplicant = await ApplicantService.rejectAllApplicants(slug);
+
+      return res.status(200).json(
+        successResponse({
+          message: 'Success reject all applicants',
+          data: {
+            totalReject: rejectedApplicant.count,
+          },
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 module.exports = JobController;

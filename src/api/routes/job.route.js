@@ -13,5 +13,11 @@ router.get(
   authorization([ROLE.COMPANY]),
   JobController.getApplicants,
 );
+router.put(
+  '/:slug/applicants/reject-all',
+  authentication,
+  authorization([ROLE.COMPANY]),
+  JobController.rejectAllApplicant,
+);
 
 module.exports = router;
