@@ -77,6 +77,22 @@ class AuthController {
       next(error);
     }
   };
+
+  static forgotChangePassword = async (req, res, next) => {
+    try {
+      authValidation.validateForgotChangePasswordPayload(req.body);
+
+      await AuthService.forgotChangePassword(req.body);
+
+      return res.status(201).json(
+        successResponse({
+          message: 'Success change password',
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 module.exports = AuthController;

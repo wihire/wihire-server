@@ -2,7 +2,11 @@ const bcrypt = require('bcrypt');
 const { uniqueSlug } = require('../lib/common');
 const prisma = require('../lib/prisma');
 const AuthtenticationError = require('../exceptions/AuthenticationError');
-const { generateAccessToken, generateForgotPasswordToken } = require('../lib/tokenManager');
+const {
+  generateAccessToken,
+  generateForgotPasswordToken,
+  decodeToken,
+} = require('../lib/tokenManager');
 const ClientError = require('../exceptions/ClientError');
 const { CONFLICT_ERR } = require('../constants/errorType');
 const NotFoundError = require('../exceptions/NotFoundError');
@@ -193,8 +197,41 @@ class AuthService {
       to: payload.email,
       subject: 'Forgot Password',
       // eslint-disable-next-line max-len
-      text: `Click This Link For Change Password: http://localhost:3000/forgot-password/verify-email/${forgotPasswordToken}`,
+      text: `Click This Link For Change Password: http://localhost:3000/forgot-password?token=${forgotPasswordToken}`,
     });
+  };
+
+  static forgotChangePassword = async (payload) => {
+    const data = await decodeToken(
+      payload.token,
+      process.env.VERIFY_FORGOT_PASSWORD_TOKEN_SECRET_KEY,
+    );
+
+    const profile = await prisma.profile.findUnique({
+      where: {
+        id: data.id,
+      },
+    });
+
+    if (!profile) {
+      throw new NotFoundError('profile not found', {
+        statusCode: 404,
+        type: NOT_FOUND_ERR,
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(payload.newPassword, 10);
+
+    const updateProfile = await prisma.profile.update({
+      where: {
+        id: data.id,
+      },
+      data: {
+        password: hashedPassword,
+      },
+    });
+
+    return updateProfile;
   };
 }
 
