@@ -2,11 +2,12 @@ const bcrypt = require('bcrypt');
 const { uniqueSlug } = require('../lib/common');
 const prisma = require('../lib/prisma');
 const AuthtenticationError = require('../exceptions/AuthenticationError');
-const { generateAccessToken } = require('../lib/tokenManager');
+const { generateAccessToken, generateVerifyEmailToken } = require('../lib/tokenManager');
 const ClientError = require('../exceptions/ClientError');
 const { CONFLICT_ERR } = require('../constants/errorType');
 const NotFoundError = require('../exceptions/NotFoundError');
 const { NOT_FOUND_ERR } = require('../constants/errorType');
+const { sendEmail } = require('../lib/nodemailer');
 class AuthService {
   static login = async ({ email, password }) => {
     const profile = await prisma.profile.findUnique({
@@ -165,6 +166,33 @@ class AuthService {
     });
 
     return newProfile;
+  };
+
+  static verificationEmail = async (payload) => {
+    const profile = await prisma.profile.findUnique({
+      where: {
+        email: payload.email,
+      },
+    });
+
+    if (!profile) {
+      throw new NotFoundError('Email not found', {
+        statusCode: 404,
+        type: NOT_FOUND_ERR,
+      });
+    }
+    const verifyEmailPayload = {
+      id: profile.id,
+      email: profile.email,
+    };
+
+    const verifyEmailToken = generateVerifyEmailToken(verifyEmailPayload);
+
+    await sendEmail({
+      to: payload.email,
+      subject: 'Email Verification',
+      text: `Please verify your email: http://localhost:3000/auth/verify-email/${verifyEmailToken}`,
+    });
   };
 }
 

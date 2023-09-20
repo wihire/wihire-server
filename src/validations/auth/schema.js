@@ -41,3 +41,7 @@ exports.registerCompany = Joi.object({
   companyScope: Joi.string().required(),
   totalEmployee: Joi.string().required(),
 });
+
+exports.verificationEmail = Joi.object({
+  email: Joi.string().email().required(),
+});
