@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer');
 
-const transporter = nodemailer.createTransport({
+exports.transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     type: 'OAuth2',
@@ -12,4 +12,13 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-module.exports = transporter;
+exports.sendEmail = async (options) => {
+  const sendMailData = await this.transporter.sendMail({
+    from: process.env.MAIL_USERNAME,
+    to: options.to,
+    subject: options.subject,
+    text: options?.text,
+    html: options?.html,
+  });
+  return sendMailData;
+};
