@@ -22,6 +22,46 @@ class AuthController {
       next(error);
     }
   };
+
+  static registerUser = async (req, res, next) => {
+    try {
+      authValidation.validateRegisterUserPayload(req.body);
+
+      const profile = await AuthService.registerUser(req.body);
+
+      return res.status(201).json(
+        successResponse({
+          message: 'Success create user',
+          data: {
+            id: profile.id,
+            slug: profile.slug,
+          },
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  static registerCompany = async (req, res, next) => {
+    try {
+      authValidation.validateRegisterCompanyPayload(req.body);
+
+      const pofile = await AuthService.registerCompany(req.body);
+
+      return res.status(201).json(
+        successResponse({
+          message: 'Success create company',
+          data: {
+            id: pofile.id,
+            slug: pofile.slug,
+          },
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 module.exports = AuthController;
