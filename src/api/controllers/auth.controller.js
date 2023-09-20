@@ -78,6 +78,23 @@ class AuthController {
       next(error);
     }
   };
+
+  static verifyEmail = async (req, res, next) => {
+    try {
+      const token = req.params;
+
+      await AuthService.verifyEmail(token);
+
+      return res.status(200).json(
+        successResponse({
+          message: 'Your email is verified',
+          data: token,
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 module.exports = AuthController;

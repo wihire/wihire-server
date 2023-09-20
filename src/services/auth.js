@@ -2,7 +2,11 @@ const bcrypt = require('bcrypt');
 const { uniqueSlug } = require('../lib/common');
 const prisma = require('../lib/prisma');
 const AuthtenticationError = require('../exceptions/AuthenticationError');
-const { generateAccessToken, generateVerifyEmailToken } = require('../lib/tokenManager');
+const {
+  generateAccessToken,
+  generateVerifyEmailToken,
+  decodeToken,
+} = require('../lib/tokenManager');
 const ClientError = require('../exceptions/ClientError');
 const { CONFLICT_ERR } = require('../constants/errorType');
 const NotFoundError = require('../exceptions/NotFoundError');
@@ -193,6 +197,21 @@ class AuthService {
       subject: 'Email Verification',
       text: `Please verify your email: http://localhost:3000/auth/verify-email/${verifyEmailToken}`,
     });
+  };
+
+  static verifyEmail = async (payload) => {
+    const data = await decodeToken(payload.token, process.env.VERIFY_EMAIL_TOKEN_SECRET_KEY);
+
+    const profile = await prisma.profile.update({
+      where: {
+        id: data.id,
+      },
+      data: {
+        isVerifiedEmail: true,
+      },
+    });
+
+    return profile;
   };
 }
 
