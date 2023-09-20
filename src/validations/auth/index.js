@@ -1,7 +1,7 @@
 const { VALIDATION_ERR } = require('../../constants/errorType');
 const InvariantError = require('../../exceptions/InvariantError');
 
-const { login, register, registerCompany } = require('./schema');
+const { login, register, registerCompany, forgotPassword } = require('./schema');
 
 const authValidation = {
   validateLoginPayload: (payload) => {
@@ -24,6 +24,15 @@ const authValidation = {
   },
   validateRegisterCompanyPayload: (payload) => {
     const validationResult = registerCompany.validate(payload);
+
+    if (validationResult.error) {
+      throw new InvariantError(validationResult.error.message, {
+        type: VALIDATION_ERR,
+      });
+    }
+  },
+  validateForgotPasswordPayload: (payload) => {
+    const validationResult = forgotPassword.validate(payload);
 
     if (validationResult.error) {
       throw new InvariantError(validationResult.error.message, {

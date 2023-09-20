@@ -46,3 +46,15 @@ exports.generateVerifyEmailToken = (payload) => {
 
   return verifyEmailToken;
 };
+
+exports.generateForgotPasswordToken = (payload) => {
+  const forgotPasswordToken = this.createToken({
+    payload,
+    secret: process.env.VERIFY_FORGOT_PASSWORD_TOKEN_SECRET_KEY,
+    options: {
+      expiresIn: '5m',
+    },
+  });
+
+  return forgotPasswordToken;
+};

@@ -2,11 +2,12 @@ const bcrypt = require('bcrypt');
 const { uniqueSlug } = require('../lib/common');
 const prisma = require('../lib/prisma');
 const AuthtenticationError = require('../exceptions/AuthenticationError');
-const { generateAccessToken } = require('../lib/tokenManager');
+const { generateAccessToken, generateForgotPasswordToken } = require('../lib/tokenManager');
 const ClientError = require('../exceptions/ClientError');
 const { CONFLICT_ERR } = require('../constants/errorType');
 const NotFoundError = require('../exceptions/NotFoundError');
 const { NOT_FOUND_ERR } = require('../constants/errorType');
+const { sendEmail } = require('../lib/nodemailer');
 class AuthService {
   static login = async ({ email, password }) => {
     const profile = await prisma.profile.findUnique({
@@ -165,6 +166,35 @@ class AuthService {
     });
 
     return newProfile;
+  };
+
+  static forgotPassword = async (payload) => {
+    const profile = await prisma.profile.findUnique({
+      where: {
+        email: payload.email,
+      },
+    });
+
+    if (!profile) {
+      throw new NotFoundError('Email not found', {
+        statusCode: 404,
+        type: NOT_FOUND_ERR,
+      });
+    }
+
+    const forgotPasswordPayload = {
+      id: profile.id,
+      email: profile.email,
+    };
+
+    const forgotPasswordToken = generateForgotPasswordToken(forgotPasswordPayload);
+
+    await sendEmail({
+      to: payload.email,
+      subject: 'Forgot Password',
+      // eslint-disable-next-line max-len
+      text: `Click This Link For Change Password: http://localhost:3000/forgot-password/verify-email/${forgotPasswordToken}`,
+    });
   };
 }
 
