@@ -34,3 +34,15 @@ exports.generateAccessToken = (payload) => {
 
   return accessToken;
 };
+
+exports.generateVerifyEmailToken = (payload) => {
+  const verifyEmailToken = this.createToken({
+    payload,
+    secret: process.env.VERIFY_EMAIL_TOKEN_SECRET_KEY,
+    options: {
+      expiresIn: '3m',
+    },
+  });
+
+  return verifyEmailToken;
+};
