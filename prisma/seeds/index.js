@@ -9,6 +9,11 @@ const seedUser = require('./user');
 const seedSalary = require('./salary');
 const seedJob = require('./job');
 const seedApplicationList = require('./applicationList');
+const seedUserEducation = require('./userEducation');
+const seedUserSkill = require('./userSkill');
+const seedUserProject = require('./userProject');
+const seedUserWorkExperience = require('./userWorkExperience');
+const seedUserCertificate = require('./userCertificate');
 
 async function main() {
   await seedCompanyTotalEmployee();
@@ -20,6 +25,11 @@ async function main() {
   await seedUser();
   await seedJob();
   await seedApplicationList();
+  await seedUserEducation();
+  await seedUserSkill();
+  await seedUserProject();
+  await seedUserWorkExperience();
+  await seedUserCertificate();
 };
 
 main()

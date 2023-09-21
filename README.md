@@ -14,5 +14,5 @@
 You can run the following command to see the database in your local machine
 
 ```bash
-yarn prisma:studio
+yarn prisma studio
 ```
