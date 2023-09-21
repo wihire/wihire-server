@@ -7,10 +7,9 @@ const {
   registerCompany,
   forgotPassword,
   forgotChangePassword,
+  verificationEmail,
+  verifyEmail,
 } = require('./schema');
-
-const { login, register, registerCompany, verificationEmail, verifyEmail } = require('./schema');
-
 
 const authValidation = {
   validateLoginPayload: (payload) => {
@@ -40,13 +39,18 @@ const authValidation = {
       });
     }
   },
-
   validateForgotPasswordPayload: (payload) => {
     const validationResult = forgotPassword.validate(payload);
 
+    if (validationResult.error) {
+      throw new InvariantError(validationResult.error.message, {
+        type: VALIDATION_ERR,
+      });
+    }
+  },
+
   validateVerificationEmailPayload: (payload) => {
     const validationResult = verificationEmail.validate(payload);
-
 
     if (validationResult.error) {
       throw new InvariantError(validationResult.error.message, {
@@ -57,10 +61,14 @@ const authValidation = {
 
   validateForgotChangePasswordPayload: (payload) => {
     const validationResult = forgotChangePassword.validate(payload);
-
+    if (validationResult.error) {
+      throw new InvariantError(validationResult.error.message, {
+        type: VALIDATION_ERR,
+      });
+    }
+  },
   validateVerifyEmailPayload: (payload) => {
     const validationResult = verifyEmail.validate(payload);
-
 
     if (validationResult.error) {
       throw new InvariantError(validationResult.error.message, {

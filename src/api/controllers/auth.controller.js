@@ -72,6 +72,12 @@ class AuthController {
       return res.status(201).json(
         successResponse({
           message: 'Success send email forgot password',
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
 
   static verificationEmail = async (req, res, next) => {
     try {
@@ -89,7 +95,6 @@ class AuthController {
     }
   };
 
-
   static forgotChangePassword = async (req, res, next) => {
     try {
       authValidation.validateForgotChangePasswordPayload(req.body);
@@ -99,6 +104,12 @@ class AuthController {
       return res.status(201).json(
         successResponse({
           message: 'Success change password',
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
 
   static verifyEmail = async (req, res, next) => {
     try {

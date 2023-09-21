@@ -54,6 +54,7 @@ exports.forgotChangePassword = Joi.object({
     .required()
     .label('confirmPassword')
     .options({ messages: { 'any.only': '{{#label}} does not match' } }),
+});
 
 exports.verificationEmail = Joi.object({
   email: Joi.string().email().required(),
@@ -61,5 +62,4 @@ exports.verificationEmail = Joi.object({
 
 exports.verifyEmail = Joi.object({
   token: Joi.string().required(),
-
 });
