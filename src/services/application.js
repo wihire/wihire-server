@@ -1,24 +1,14 @@
 const prisma = require('../lib/prisma');
-const UserService = require('../services/user');
 const NotFoundError = require('../exceptions/NotFoundError');
 
-
 class ApplicationService {
-  static getUserAppliation = async (applicationStatus, page, limit) => {
-    // Change this to something ELSE
-    const user = await UserService.getProfileUserByProfileId(
-      '5b360590-5575-11ee-8c99-0242ac120003',
-    );
-
-  
-
-    if (!user) {
+  static getUserAppliation = async (userData, applicationStatus, page, limit) => {
+    if (!userData) {
       throw new NotFoundError('User Not Found');
     }
     const applications = await prisma.applicationList.findMany({
       where: {
-        //TEMP
-        userId: user.user.id,
+        userId: userData.id,
         status: applicationStatus,
       },
       select: {
@@ -27,9 +17,6 @@ class ApplicationService {
             id: true,
             title: true,
             slug: true,
-            // savedJob: {
-
-            // },
 
             company: {
               select: {
@@ -55,47 +42,72 @@ class ApplicationService {
               },
             },
 
-            // savedJob: {
+            // INI DICOBA DULU
 
+            // savedJob: {
+            //   where: {
+            //     userId: userData.id
+            //   }
             // },
 
             createdAt: true,
             updatedAt: true,
           },
-
         },
         status: true,
         createdAt: true,
         updatedAt: true,
       },
       skip: (page - 1) * limit,
-      take: limit
+      take: limit,
     });
 
-    return applications;
-  };
+    const checkIsSavedJob = async (jobData) => {
+      const saved = await prisma.savedJob.findFirst({
+        where: {
+          AND: [
+            {
+              userId: userData.id,
+            },
+            {
+              jobId: jobData.job.id,
+            },
+          ],
+        },
+      });
+      if (saved) {
+        return true;
+      }
+      return false;
+    };
 
-
-  static getApplicationTotal = async (applicationStatus) => {
-    // Change this to something ELSE
-    const user = await UserService.getProfileUserByProfileId(
-      '5b360590-5575-11ee-8c99-0242ac120003',
+    // Go through all job data and see if it is in savedJob or not
+    const isSavedjob = await Promise.all(
+      applications.map(async (application) => await checkIsSavedJob(application)),
     );
 
+    // Formatting the data
+    const applicationClean = applications.map((application, i) => ({
+      ...application.job,
+      isSaved: isSavedjob[i],
+    }));
 
-    if (!user) {
+    return applicationClean;
+  };
+
+  static getApplicationTotal = async (userData, applicationStatus) => {
+    if (!userData) {
       throw new NotFoundError('User Not Found');
     }
     const totalApplication = await prisma.applicationList.count({
       where: {
-        //TEMP
-        userId: user.user.id,
+        userId: userData.id,
         status: applicationStatus,
       },
-    })
+    });
 
     return totalApplication;
-  }
+  };
 }
 
 module.exports = ApplicationService;
