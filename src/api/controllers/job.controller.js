@@ -3,8 +3,30 @@ const { getPaginationStatus } = require('../../lib/pagination');
 const ApplicantService = require('../../services/applicant');
 const { isNumber } = require('../../lib/common');
 const JobService = require('../../services/job');
+const jobValidation = require('../../validations/job');
 
 class JobController {
+  static createJob = async (req, res, next) => {
+    try {
+      jobValidation.validateCreateJobPayload(req.body);
+
+      const companyId = req.user.company.id;
+      const job = await JobService.create(companyId, req.body);
+
+      return res.status(201).json(
+        successResponse({
+          message: 'Create job succcess',
+          data: {
+            id: job.id,
+            slug: job.slug,
+          },
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
   static getApplicants = async (req, res, next) => {
     const { slug } = req.params;
     let { page, limit } = req.query;

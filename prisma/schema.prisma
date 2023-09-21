@@ -214,7 +214,7 @@ model Salary {
 
 model Skill {
   id        String   @id @unique @default(uuid())
-  title     String   @db.VarChar(255)
+  title     String   @unique @db.VarChar(255)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 
@@ -261,17 +261,17 @@ model Job {
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @default(now())
 
-  company         Company           @relation(fields: [companyId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  salary          Salary?           @relation(fields: [salaryId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  jobSkills       JobSkill[]
-  savedJobs       SavedJob[]
-  applicationList ApplicationList[]
-  jobCategories   JobCategory[]
+  company              Company           @relation(fields: [companyId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  rangeSalary          Salary?           @relation(fields: [salaryId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  skills               JobSkill[]
+  savedJobs            SavedJob[]
+  applicants           ApplicationList[]
+  categories           JobCategory[]
 }
 
 model Category {
   id        String   @id @unique @default(uuid())
-  title     String
+  title     String   @unique @db.VarChar(255)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 
@@ -280,12 +280,12 @@ model Category {
 
 model JobCategory {
   id           String   @id @unique @default(uuid())
-  categoriesId String
+  categoryId   String
   jobId        String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @default(now())
 
-  categories Category @relation(fields: [categoriesId], references: [id])
+  categories Category @relation(fields: [categoryId], references: [id])
   job        Job      @relation(fields: [jobId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 

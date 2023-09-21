@@ -1,0 +1,8 @@
+const JOB_TYPE = {
+  FULLTIME: 'FULLTIME',
+  PARTTIME: 'PARTTIME',
+  INTERNSHIP: 'INTERNSHIP',
+  CONTRACT: 'CONTRACT',
+};
+
+module.exports = JOB_TYPE;
