@@ -9,6 +9,9 @@ const {
   forgotChangePassword,
 } = require('./schema');
 
+const { login, register, registerCompany, verificationEmail, verifyEmail } = require('./schema');
+
+
 const authValidation = {
   validateLoginPayload: (payload) => {
     const validationResult = login.validate(payload);
@@ -37,8 +40,13 @@ const authValidation = {
       });
     }
   },
+
   validateForgotPasswordPayload: (payload) => {
     const validationResult = forgotPassword.validate(payload);
+
+  validateVerificationEmailPayload: (payload) => {
+    const validationResult = verificationEmail.validate(payload);
+
 
     if (validationResult.error) {
       throw new InvariantError(validationResult.error.message, {
@@ -46,8 +54,13 @@ const authValidation = {
       });
     }
   },
+
   validateForgotChangePasswordPayload: (payload) => {
     const validationResult = forgotChangePassword.validate(payload);
+
+  validateVerifyEmailPayload: (payload) => {
+    const validationResult = verifyEmail.validate(payload);
+
 
     if (validationResult.error) {
       throw new InvariantError(validationResult.error.message, {
