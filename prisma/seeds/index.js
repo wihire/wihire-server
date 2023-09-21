@@ -9,6 +9,7 @@ const seedUser = require('./user');
 const seedSalary = require('./salary');
 const seedJob = require('./job');
 const seedApplicationList = require('./applicationList');
+const seedSavedjob = require('./savedJob');
 
 async function main() {
   await seedCompanyTotalEmployee();
@@ -20,7 +21,8 @@ async function main() {
   await seedUser();
   await seedJob();
   await seedApplicationList();
-};
+  await seedSavedjob();
+}
 
 main()
   .then(async () => {
