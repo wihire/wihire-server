@@ -21,5 +21,6 @@ exports.createJob = Joi.object({
   status: Joi.string()
     .valid(...Object.values(JOB_STATUS))
     .required(),
-  categoryAttributes: Joi.array()
+  categories: Joi.array().min(1).required(),
+  skills: Joi.array().min(1).required(),
 });
