@@ -3,11 +3,16 @@ const bcrypt = require('bcrypt');
 const { uniqueSlug } = require('../lib/common');
 const prisma = require('../lib/prisma');
 const AuthtenticationError = require('../exceptions/AuthenticationError');
-const { generateAccessToken } = require('../lib/tokenManager');
+const {
+  generateAccessToken,
+  generateVerifyEmailToken,
+  decodeToken,
+} = require('../lib/tokenManager');
 const ClientError = require('../exceptions/ClientError');
 const { CONFLICT_ERR } = require('../constants/errorType');
 const NotFoundError = require('../exceptions/NotFoundError');
 const { NOT_FOUND_ERR } = require('../constants/errorType');
+const { sendEmail } = require('../lib/nodemailer');
 
 class AuthService {
   static login = async ({ email, password }) => {
@@ -32,6 +37,7 @@ class AuthService {
       email: profile.email,
       role: profile.role,
     };
+
     const accessToken = generateAccessToken(accessTokenPayload);
 
     return {
@@ -162,6 +168,60 @@ class AuthService {
 
       return newProfile;
     });
+  };
+
+  static verificationEmail = async ({ email }) => {
+    const profile = await prisma.profile.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    if (!profile) {
+      throw new NotFoundError('Account not found');
+    }
+
+    const verifyEmailPayload = {
+      id: profile.id,
+      email: profile.email,
+    };
+
+    const verifyEmailToken = generateVerifyEmailToken(verifyEmailPayload);
+
+    await sendEmail({
+      to: email,
+      subject: 'Email Verification',
+      // eslint-disable-next-line max-len
+      text: `Please verify your email: http://localhost:3000/auth/verify-email?token=${verifyEmailToken}`,
+    });
+  };
+
+  static verifyEmail = async ({ token }) => {
+    const data = await decodeToken(token, process.env.VERIFY_EMAIL_TOKEN_SECRET_KEY);
+
+    const profile = await prisma.profile.update({
+      where: {
+        id: data.id,
+      },
+      data: {
+        isVerifiedEmail: true,
+      },
+    });
+
+    const accessTokenPayload = {
+      id: profile.id,
+      email: profile.email,
+      role: profile.role,
+    };
+
+    const accessToken = generateAccessToken(accessTokenPayload);
+
+    return {
+      accessToken,
+      profile: {
+        isVerifiedEmail: profile.isVerifiedEmail,
+      },
+    };
   };
 }
 
