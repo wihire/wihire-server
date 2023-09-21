@@ -27,6 +27,10 @@ class JobService {
       },
     });
 
+    if (!job) {
+      throw new NotFoundError('Job not found');
+    }
+
     return job;
   };
 
