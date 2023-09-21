@@ -11,9 +11,17 @@ exports.decodeToken = (token, secretKey) =>
     jwt.verify(token, secretKey, (error, decoded) => {
       if (error) {
         if (error.message === 'jwt malformed') {
-          reject(new InvariantError(TOKEN_INVALID_ERR_MSG, TOKEN_ERR));
+          reject(
+            new InvariantError(TOKEN_INVALID_ERR_MSG, {
+              type: TOKEN_ERR,
+            }),
+          );
         } else if (error.message === 'jwt expired') {
-          reject(new InvariantError(TOKEN_EXPIRED_ERR_MSG, TOKEN_ERR));
+          reject(
+            new InvariantError(TOKEN_EXPIRED_ERR_MSG, {
+              type: TOKEN_ERR,
+            }),
+          );
         }
 
         reject(error);
@@ -23,9 +31,9 @@ exports.decodeToken = (token, secretKey) =>
     });
   });
 
-exports.generateAccessToken = (payload) => {
+exports.generateAccessToken = ({ id, email, role }) => {
   const accessToken = this.createToken({
-    payload,
+    payload: { id, email, role },
     secret: process.env.ACCESS_TOKEN_SECRET_KEY,
     options: {
       expiresIn: '7d',
@@ -35,12 +43,12 @@ exports.generateAccessToken = (payload) => {
   return accessToken;
 };
 
-exports.generateVerifyEmailToken = (payload) => {
+exports.generateVerifyEmailToken = ({ id, email }) => {
   const verifyEmailToken = this.createToken({
-    payload,
+    payload: { id, email },
     secret: process.env.VERIFY_EMAIL_TOKEN_SECRET_KEY,
     options: {
-      expiresIn: '10m',
+      expiresIn: '3m',
     },
   });
 

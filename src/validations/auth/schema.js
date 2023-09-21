@@ -45,3 +45,7 @@ exports.registerCompany = Joi.object({
 exports.verificationEmail = Joi.object({
   email: Joi.string().email().required(),
 });
+
+exports.verifyEmail = Joi.object({
+  token: Joi.string().required(),
+});

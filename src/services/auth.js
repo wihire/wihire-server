@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+
 const { uniqueSlug } = require('../lib/common');
 const prisma = require('../lib/prisma');
 const AuthtenticationError = require('../exceptions/AuthenticationError');
@@ -12,6 +13,7 @@ const { CONFLICT_ERR } = require('../constants/errorType');
 const NotFoundError = require('../exceptions/NotFoundError');
 const { NOT_FOUND_ERR } = require('../constants/errorType');
 const { sendEmail } = require('../lib/nodemailer');
+
 class AuthService {
   static login = async ({ email, password }) => {
     const profile = await prisma.profile.findUnique({
@@ -35,6 +37,7 @@ class AuthService {
       email: profile.email,
       role: profile.role,
     };
+
     const accessToken = generateAccessToken(accessTokenPayload);
 
     return {
@@ -72,7 +75,7 @@ class AuthService {
             birthDate: userData.birthDate,
             gender: userData.gender,
             phoneNumber: userData.phoneNumber,
-            salary: {
+            salaryExpectation: {
               create: {
                 min: userData.salaryExpectation,
               },
@@ -83,7 +86,7 @@ class AuthService {
       include: {
         user: {
           include: {
-            salary: true,
+            salaryExpectation: true,
           },
         },
       },
@@ -105,86 +108,79 @@ class AuthService {
 
     const hashedPassword = await bcrypt.hash(companyData.password, 10);
 
-    const companyScope = await prisma.companyScope.upsert({
-      where: {
-        name: companyData.companyScope,
-      },
-      create: {
-        name: companyData.companyScope,
-      },
-      update: {},
-    });
-
-    if (!companyScope) {
-      throw new NotFoundError('Company scope not found', {
-        statusCode: 404,
-        type: NOT_FOUND_ERR,
+    return await prisma.$transaction(async (tx) => {
+      const companyScope = await tx.companyScope.upsert({
+        where: {
+          name: companyData.companyScope,
+        },
+        create: {
+          name: companyData.companyScope,
+        },
+        update: {},
       });
-    }
 
-    const companyTotalEmployee = await prisma.companyTotalEmployee.findUnique({
-      where: {
-        id: companyData.totalEmployee,
-      },
-    });
-
-    if (!companyTotalEmployee) {
-      throw new NotFoundError('Company total employee not found', {
-        statusCode: 404,
-        type: NOT_FOUND_ERR,
+      const companyTotalEmployee = await tx.companyTotalEmployee.findUnique({
+        where: {
+          id: companyData.totalEmployee,
+        },
       });
-    }
 
-    const newProfile = await prisma.profile.create({
-      data: {
-        slug: uniqueSlug(companyData.name).toLowerCase(),
-        name: companyData.name,
-        email: companyData.email,
-        password: hashedPassword,
-        role: 'COMPANY',
-        province: companyData.province,
-        address: companyData.address,
-        company: {
-          create: {
-            companyScope: {
-              connect: {
-                id: companyScope.id,
+      if (!companyTotalEmployee) {
+        throw new NotFoundError('Company total employee not found', {
+          statusCode: 404,
+          type: NOT_FOUND_ERR,
+        });
+      }
+
+      const newProfile = await tx.profile.create({
+        data: {
+          slug: uniqueSlug(companyData.name).toLowerCase(),
+          name: companyData.name,
+          email: companyData.email,
+          password: hashedPassword,
+          role: 'COMPANY',
+          province: companyData.province,
+          address: companyData.address,
+          company: {
+            create: {
+              companyScope: {
+                connect: {
+                  id: companyScope.id,
+                },
               },
             },
-            companyTotalEmployee: {
+            totalEmployee: {
               connect: {
                 id: companyTotalEmployee.id,
               },
             },
           },
         },
-      },
-      include: {
-        company: {
-          include: {
-            companyScope: true,
-            companyTotalEmployee: true,
+        include: {
+          company: {
+            include: {
+              companyScope: true,
+              totalEmployee: true,
+            },
           },
         },
-      },
-    });
+      });
 
-    return newProfile;
+      return newProfile;
+    });
   };
 
-  static verificationEmail = async (payload) => {
+  static verificationEmail = async ({ email }) => {
     const profile = await prisma.profile.findUnique({
       where: {
-        email: payload.email,
+        email,
       },
     });
 
     if (!profile) {
-      throw new NotFoundError('Email not found', {
-        statusCode: 404,
-        type: NOT_FOUND_ERR,
-      });
+      throw new NotFoundError('Account not found');
     }
+
     const verifyEmailPayload = {
       id: profile.id,
       email: profile.email,
@@ -193,14 +189,15 @@ class AuthService {
     const verifyEmailToken = generateVerifyEmailToken(verifyEmailPayload);
 
     await sendEmail({
-      to: payload.email,
+      to: email,
       subject: 'Email Verification',
-      text: `Please verify your email: http://localhost:3000/auth/verify-email/${verifyEmailToken}`,
+      // eslint-disable-next-line max-len
+      text: `Please verify your email: http://localhost:3000/auth/verify-email?token=${verifyEmailToken}`,
     });
   };
 
-  static verifyEmail = async (payload) => {
-    const data = await decodeToken(payload.token, process.env.VERIFY_EMAIL_TOKEN_SECRET_KEY);
+  static verifyEmail = async ({ token }) => {
+    const data = await decodeToken(token, process.env.VERIFY_EMAIL_TOKEN_SECRET_KEY);
 
     const profile = await prisma.profile.update({
       where: {
@@ -211,7 +208,20 @@ class AuthService {
       },
     });
 
-    return profile;
+    const accessTokenPayload = {
+      id: profile.id,
+      email: profile.email,
+      role: profile.role,
+    };
+
+    const accessToken = generateAccessToken(accessTokenPayload);
+
+    return {
+      accessToken,
+      profile: {
+        isVerifiedEmail: profile.isVerifiedEmail,
+      },
+    };
   };
 }
 

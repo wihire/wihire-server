@@ -81,14 +81,17 @@ class AuthController {
 
   static verifyEmail = async (req, res, next) => {
     try {
-      const token = req.params;
+      authValidation.validateVerifyEmailPayload(req.body);
 
-      await AuthService.verifyEmail(token);
+      const { accessToken, profile } = await AuthService.verifyEmail(req.body);
 
       return res.status(200).json(
         successResponse({
           message: 'Your email is verified',
-          data: token,
+          data: {
+            accessToken,
+            profile,
+          },
         }),
       );
     } catch (error) {
