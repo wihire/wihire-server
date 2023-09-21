@@ -19,6 +19,11 @@ router.put(
   authorization([ROLE.COMPANY]),
   JobController.rejectAllApplicant,
 );
-router.get('/:slug', JobController.getJobDetailsBySlug);
+router.get(
+  '/:slug',
+  authentication,
+  authorization([ROLE.USER, ROLE.COMPANY]),
+  JobController.getJobDetailsBySlug,
+);
 
 module.exports = router;
