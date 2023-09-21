@@ -62,6 +62,42 @@ class AuthController {
       next(error);
     }
   };
+
+  static verificationEmail = async (req, res, next) => {
+    try {
+      authValidation.validateVerificationEmailPayload(req.body);
+
+      await AuthService.verificationEmail(req.body);
+
+      return res.status(200).json(
+        successResponse({
+          message: 'Success send email verification',
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  static verifyEmail = async (req, res, next) => {
+    try {
+      authValidation.validateVerifyEmailPayload(req.body);
+
+      const { accessToken, profile } = await AuthService.verifyEmail(req.body);
+
+      return res.status(200).json(
+        successResponse({
+          message: 'Your email is verified',
+          data: {
+            accessToken,
+            profile,
+          },
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 module.exports = AuthController;
