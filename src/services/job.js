@@ -1,3 +1,5 @@
+const { CONFLICT_ERR } = require('../constants/errorType');
+const ClientError = require('../exceptions/ClientError');
 const InvariantError = require('../exceptions/InvariantError');
 const NotFoundError = require('../exceptions/NotFoundError');
 const prisma = require('../lib/prisma');
@@ -60,9 +62,10 @@ class JobService {
     return newSavedJob;
   };
 
-  static unsaveJob = async ({ jobSlug, userId }) => {
+  static unsaveJob = async ({ jobSlug, jobId, userId }) => {
     const job = await prisma.job.findUnique({
       where: {
+        id: jobId,
         slug: jobSlug,
       },
     });
@@ -85,6 +88,53 @@ class JobService {
         id: savedJob.id,
       },
     });
+  };
+
+  static applyJob = async ({ jobSlug, jobId, userId, url }) => {
+    const job = await prisma.job.findUnique({
+      where: {
+        slug: jobSlug,
+      },
+    });
+
+    console.log(job);
+
+    if (!job) {
+      throw new NotFoundError('Job not found');
+    }
+
+    const applicantCheck = await prisma.applicationList.findFirst({
+      where: {
+        user: {
+          id: userId,
+        },
+        job: {
+          id: jobId,
+        },
+      },
+    });
+
+    if (applicantCheck) {
+      throw new ClientError('Already Apply This Job', { statusCode: 409, type: CONFLICT_ERR });
+    }
+
+    const applyJob = await prisma.applicationList.create({
+      data: {
+        resume: url,
+        user: {
+          connect: {
+            id: userId,
+          },
+        },
+        job: {
+          connect: {
+            id: job.id,
+          },
+        },
+      },
+    });
+
+    return applyJob;
   };
 }
 

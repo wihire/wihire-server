@@ -3,6 +3,8 @@ const { getPaginationStatus } = require('../../lib/pagination');
 const ApplicantService = require('../../services/applicant');
 const { isNumber } = require('../../lib/common');
 const JobService = require('../../services/job');
+const FirebaseStorage = require('../../lib/firebase/FirebaseStorage');
+const folderStorage = require('../../constants/folderStorage');
 
 class JobController {
   static getApplicants = async (req, res, next) => {
@@ -90,6 +92,31 @@ class JobController {
           message: 'Success reject all applicants',
           data: {
             totalReject: rejectedApplicant.count,
+          },
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  static applyJob = async (req, res, next) => {
+    try {
+      const { slug: jobSlug } = req.params;
+      const { id: jobId } = req.body;
+      const { file } = req;
+      const { url } = await FirebaseStorage.upload(file, {
+        folder: folderStorage.firebaseStorage.RESUME,
+      });
+
+      await JobService.applyJob({ jobSlug, jobId, userId: req.user.user.id, url });
+
+      return res.status(200).json(
+        successResponse({
+          message: 'Success apply job',
+          data: {
+            jobId,
+            jobSlug,
           },
         }),
       );
