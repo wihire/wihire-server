@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+
 const { uniqueSlug } = require('../lib/common');
 const prisma = require('../lib/prisma');
 const AuthtenticationError = require('../exceptions/AuthenticationError');
@@ -7,6 +8,7 @@ const ClientError = require('../exceptions/ClientError');
 const { CONFLICT_ERR } = require('../constants/errorType');
 const NotFoundError = require('../exceptions/NotFoundError');
 const { NOT_FOUND_ERR } = require('../constants/errorType');
+
 class AuthService {
   static login = async ({ email, password }) => {
     const profile = await prisma.profile.findUnique({
@@ -140,10 +142,10 @@ class AuthService {
                   id: companyScope.id,
                 },
               },
-              companyTotalEmployee: {
-                connect: {
-                  id: companyTotalEmployee.id,
-                },
+            },
+            totalEmployee: {
+              connect: {
+                id: companyTotalEmployee.id,
               },
             },
           },
@@ -152,7 +154,7 @@ class AuthService {
           company: {
             include: {
               companyScope: true,
-              companyTotalEmployee: true,
+              totalEmployee: true,
             },
           },
         },

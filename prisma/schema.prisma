@@ -84,15 +84,15 @@ model User {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @default(now())
 
-  profile               Profile  @relation(fields: [profileId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  salaryExpectation     Salary?   @relation(fields: [salaryExpectationId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  userProjects          UserProject[]
-  userEducations        UserEducation[]
-  userWorkExperiencies  UserWorkExperience[]
-  userCertificates      UserCertificate[]
-  userSkills            UserSkill[]
-  savedJobs             SavedJob[]
-  applicationList       ApplicationList[]
+  profile             Profile  @relation(fields: [profileId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  salaryExpectation   Salary?   @relation(fields: [salaryExpectationId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  projects            UserProject[]
+  educations          UserEducation[]
+  workExperiencies    UserWorkExperience[]
+  certificates        UserCertificate[]
+  skills              UserSkill[]
+  savedJobs           SavedJob[]
+  applicants          ApplicationList[]
 }
 
 model Company {
@@ -106,10 +106,10 @@ model Company {
   createdAt              DateTime @default(now())
   updatedAt              DateTime @default(now())
 
-  companyTotalEmployee CompanyTotalEmployee @relation(fields: [companyTotalEmployeeId], references: [id])
-  companyScope         CompanyScope         @relation(fields: [companyScopeid], references: [id])
-  profile              Profile              @relation(fields: [profileId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  jobs                 Job[]
+  totalEmployee          CompanyTotalEmployee @relation(fields: [companyTotalEmployeeId], references: [id])
+  companyScope           CompanyScope         @relation(fields: [companyScopeid], references: [id])
+  profile                Profile              @relation(fields: [profileId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  jobs                   Job[]
 }
 
 model CompanyTotalEmployee {
@@ -165,10 +165,10 @@ model UserEducation {
   userId    String
   name      String   @db.VarChar(255)
   startDate DateTime
-  EndDate   DateTime
+  endDate   DateTime
   field     String   @db.VarChar(255)
-  grade     Int?
-  maxGrade  Int?
+  grade     Float?
+  maxGrade  Float?
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 
