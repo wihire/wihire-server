@@ -2,7 +2,7 @@ const prisma = require('../lib/prisma');
 const NotFoundError = require('../exceptions/NotFoundError');
 
 class ApplicationService {
-  static getUserAppliation = async (userData, applicationStatus, page, limit) => {
+  static getUserApplication = async (userData, applicationStatus, page, limit) => {
     if (!userData) {
       throw new NotFoundError('User Not Found');
     }

@@ -12,9 +12,8 @@ class ApplicationController {
     if (!limit || !isNumber(limit)) limit = 15;
 
     try {
-      const applications = await ApplicationService.getUserAppliation(user, status, +page, +limit);
+      const applications = await ApplicationService.getUserApplication(user, status, +page, +limit);
       const totalData = await ApplicationService.getApplicationTotal(user, status);
-      // const saved = await ApplicationService.getSaved()
       const pagination = getPaginationStatus(page, limit, totalData);
       return res.status(200).json(
         successResponse({
@@ -23,7 +22,6 @@ class ApplicationController {
             jobs: applications,
           },
           pagination,
-          // saved
         }),
       );
     } catch (error) {
