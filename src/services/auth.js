@@ -102,50 +102,45 @@ class AuthService {
 
     const hashedPassword = await bcrypt.hash(companyData.password, 10);
 
-    const companyScope = await prisma.companyScope.upsert({
-      where: {
-        name: companyData.companyScope,
-      },
-      create: {
-        name: companyData.companyScope,
-      },
-      update: {},
-    });
-
-    if (!companyScope) {
-      throw new NotFoundError('Company scope not found', {
-        statusCode: 404,
-        type: NOT_FOUND_ERR,
+    return await prisma.$transaction(async (tx) => {
+      const companyScope = await tx.companyScope.upsert({
+        where: {
+          name: companyData.companyScope,
+        },
+        create: {
+          name: companyData.companyScope,
+        },
+        update: {},
       });
-    }
 
-    const companyTotalEmployee = await prisma.companyTotalEmployee.findUnique({
-      where: {
-        id: companyData.totalEmployee,
-      },
-    });
-
-    if (!companyTotalEmployee) {
-      throw new NotFoundError('Company total employee not found', {
-        statusCode: 404,
-        type: NOT_FOUND_ERR,
+      const companyTotalEmployee = await tx.companyTotalEmployee.findUnique({
+        where: {
+          id: companyData.totalEmployee,
+        },
       });
-    }
 
-    const newProfile = await prisma.profile.create({
-      data: {
-        slug: uniqueSlug(companyData.name).toLowerCase(),
-        name: companyData.name,
-        email: companyData.email,
-        password: hashedPassword,
-        role: 'COMPANY',
-        province: companyData.province,
-        address: companyData.address,
-        company: {
-          create: {
-            companyScope: {
-              connect: {
-                id: companyScope.id,
+      if (!companyTotalEmployee) {
+        throw new NotFoundError('Company total employee not found', {
+          statusCode: 404,
+          type: NOT_FOUND_ERR,
+        });
+      }
+
+      const newProfile = await tx.profile.create({
+        data: {
+          slug: uniqueSlug(companyData.name).toLowerCase(),
+          name: companyData.name,
+          email: companyData.email,
+          password: hashedPassword,
+          role: 'COMPANY',
+          province: companyData.province,
+          address: companyData.address,
+          company: {
+            create: {
+              companyScope: {
+                connect: {
+                  id: companyScope.id,
+                },
               },
             },
             totalEmployee: {
@@ -155,18 +150,18 @@ class AuthService {
             },
           },
         },
-      },
-      include: {
-        company: {
-          include: {
-            companyScope: true,
-            totalEmployee: true,
+        include: {
+          company: {
+            include: {
+              companyScope: true,
+              totalEmployee: true,
+            },
           },
         },
-      },
-    });
+      });
 
-    return newProfile;
+      return newProfile;
+    });
   };
 }
 
