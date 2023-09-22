@@ -10,7 +10,7 @@ exports.decodeToken = (token, secretKey) =>
   new Promise((resolve, reject) => {
     jwt.verify(token, secretKey, (error, decoded) => {
       if (error) {
-        if (error.message === 'jwt malformed') {
+        if (error.message === 'jwt malformed' || error.message === 'invalid signature') {
           reject(
             new InvariantError(TOKEN_INVALID_ERR_MSG, {
               type: TOKEN_ERR,

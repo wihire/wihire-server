@@ -11,7 +11,6 @@ const {
 const ClientError = require('../exceptions/ClientError');
 const { CONFLICT_ERR } = require('../constants/errorType');
 const NotFoundError = require('../exceptions/NotFoundError');
-const { NOT_FOUND_ERR } = require('../constants/errorType');
 const { sendEmail } = require('../lib/nodemailer');
 
 class AuthService {
@@ -126,10 +125,7 @@ class AuthService {
       });
 
       if (!companyTotalEmployee) {
-        throw new NotFoundError('Company total employee not found', {
-          statusCode: 404,
-          type: NOT_FOUND_ERR,
-        });
+        throw new NotFoundError('Company total employee not found');
       }
 
       const newProfile = await tx.profile.create({
@@ -148,10 +144,10 @@ class AuthService {
                   id: companyScope.id,
                 },
               },
-            },
-            totalEmployee: {
-              connect: {
-                id: companyTotalEmployee.id,
+              totalEmployee: {
+                connect: {
+                  id: companyTotalEmployee.id,
+                },
               },
             },
           },
