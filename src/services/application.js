@@ -1,107 +1,57 @@
 const prisma = require('../lib/prisma');
-const NotFoundError = require('../exceptions/NotFoundError');
+const JobService = require('./job');
 
 class ApplicationService {
-  static getUserApplication = async (userData, applicationStatus, page, limit) => {
-    if (!userData) {
-      throw new NotFoundError('User Not Found');
-    }
+  static getUserApplication = async ({ userId, applicationStatus, page, limit }) => {
     const applications = await prisma.applicationList.findMany({
       where: {
-        userId: userData.id,
+        userId,
         status: applicationStatus,
       },
-      select: {
+      include: {
         job: {
-          select: {
-            id: true,
-            title: true,
-            slug: true,
-
+          include: {
             company: {
-              select: {
+              include: {
                 profile: {
                   select: {
-                    id: true,
-                    name: true,
                     slug: true,
+                    name: true,
+                    email: true,
                     avatar: true,
                   },
                 },
               },
             },
-
-            address: true,
-            placeMethod: true,
-            jobType: true,
-            salary: {
-              select: {
-                id: true,
-                min: true,
-                max: true,
+            rangeSalary: true,
+            savedJobs: {
+              where: {
+                userId: {
+                  equals: userId,
+                },
               },
             },
-
-            // INI DICOBA DULU
-
-            // savedJob: {
-            //   where: {
-            //     userId: userData.id
-            //   }
-            // },
-
-            createdAt: true,
-            updatedAt: true,
           },
         },
-        status: true,
-        createdAt: true,
-        updatedAt: true,
       },
       skip: (page - 1) * limit,
       take: limit,
     });
 
-    const checkIsSavedJob = async (jobData) => {
-      const saved = await prisma.savedJob.findFirst({
-        where: {
-          AND: [
-            {
-              userId: userData.id,
-            },
-            {
-              jobId: jobData.job.id,
-            },
-          ],
-        },
-      });
-      if (saved) {
-        return true;
-      }
-      return false;
-    };
+    applications.forEach((application) => {
+      delete application.userId;
+      delete application.jobId;
 
-    // Go through all job data and see if it is in savedJob or not
-    const isSavedjob = await Promise.all(
-      applications.map(async (application) => await checkIsSavedJob(application)),
-    );
+      application.job = JobService.simpleJobMapping(application.job);
+    });
 
-    // Formatting the data
-    const applicationClean = applications.map((application, i) => ({
-      ...application.job,
-      isSaved: isSavedjob[i],
-    }));
-
-    return applicationClean;
+    return applications;
   };
 
-  static getApplicationTotal = async (userData, applicationStatus) => {
-    if (!userData) {
-      throw new NotFoundError('User Not Found');
-    }
+  static getApplicationTotal = async ({ userId, applicationStatus }) => {
     const totalApplication = await prisma.applicationList.count({
       where: {
-        userId: userData.id,
+        userId,
         status: applicationStatus,
       },
     });
