@@ -179,7 +179,7 @@ class AuthService {
     });
 
     if (!profile) {
-      throw new NotFoundError('Account not found');
+      throw new NotFoundError('Profile not found');
     }
 
     const verifyEmailPayload = {
@@ -233,10 +233,7 @@ class AuthService {
     });
 
     if (!profile) {
-      throw new NotFoundError('Email not found', {
-        statusCode: 404,
-        type: NOT_FOUND_ERR,
-      });
+      throw new NotFoundError('Profile not found');
     }
 
     const forgotPasswordPayload = {
