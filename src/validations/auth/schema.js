@@ -41,3 +41,25 @@ exports.registerCompany = Joi.object({
   companyScope: Joi.string().required(),
   totalEmployee: Joi.string().required(),
 });
+
+exports.forgotPassword = Joi.object({
+  email: Joi.string().email().required(),
+});
+
+exports.forgotChangePassword = Joi.object({
+  token: Joi.string().required(),
+  newPassword: Joi.string().min(8).required(),
+  confirmNewPassword: Joi.string()
+    .equal(Joi.ref('newPassword'))
+    .required()
+    .label('confirmPassword')
+    .options({ messages: { 'any.only': '{{#label}} does not match' } }),
+});
+
+exports.verificationEmail = Joi.object({
+  email: Joi.string().email().required(),
+});
+
+exports.verifyEmail = Joi.object({
+  token: Joi.string().required(),
+});
