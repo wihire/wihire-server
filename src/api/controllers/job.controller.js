@@ -114,7 +114,7 @@ class JobController {
       if (!page || !isNumber(page)) page = 1;
       if (!limit || !isNumber(limit)) limit = 15;
 
-      const applicants = await ApplicantService.getApplicants({
+      const applicants = await ApplicantService.getApplicantsJob({
         jobSlug: slug,
         page: +page,
         limit: +limit,

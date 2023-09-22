@@ -3,7 +3,7 @@ const JobService = require('./job');
 const STATUS_APPLICATION = require('../constants/statusApplication');
 
 class ApplicantService {
-  static getApplicants = async ({ jobSlug, page, limit }) => {
+  static getApplicantsJob = async ({ jobSlug, page, limit }) => {
     const job = await JobService.getBySlug(jobSlug);
 
     const applicationsJobRaw = await prisma.applicationList.findMany({

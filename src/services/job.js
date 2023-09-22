@@ -159,6 +159,27 @@ class JobService {
     return totalJob;
   };
 
+  static simpleJobMapping = (job) => {
+    const jobCompanyProfile = job.company.profile;
+    const isSaved = job.savedJobs.length > 0;
+
+    delete job.company;
+    delete job.savedJobs;
+    delete job.companyId;
+    delete job.salaryId;
+    delete job.description;
+    delete job.minimumQualification;
+    delete job.benefits;
+
+    return {
+      ...job,
+      company: {
+        profile: jobCompanyProfile,
+      },
+      isSaved,
+    };
+  };
+
   static getAllJobs = async (userId, filters) => {
     const jobsRaw = await prisma.job.findMany({
       where: {
@@ -190,26 +211,7 @@ class JobService {
       },
     });
 
-    const jobs = jobsRaw.map((job) => {
-      const jobCompanyProfile = job.company.profile;
-      const isSaved = job.savedJobs.length > 0;
-
-      delete job.company;
-      delete job.savedJobs;
-      delete job.companyId;
-      delete job.salaryId;
-      delete job.description;
-      delete job.minimumQualification;
-      delete job.benefits;
-
-      return {
-        ...job,
-        company: {
-          profile: jobCompanyProfile,
-        },
-        isSaved,
-      };
-    });
+    const jobs = jobsRaw.map(this.simpleJobMapping);
 
     return jobs;
   };
