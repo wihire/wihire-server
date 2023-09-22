@@ -213,6 +213,28 @@ class JobController {
       next(error);
     }
   };
+
+  static getJobDetailBySlug = async (req, res, next) => {
+    try {
+      const { slug } = req.params;
+
+      const job = await JobService.getJobDetailBySlug({
+        jobSlug: slug,
+        userId: req.user.user.id,
+      });
+
+      return res.status(200).json(
+        successResponse({
+          message: 'Success get job',
+          data: {
+            job,
+          },
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 module.exports = JobController;

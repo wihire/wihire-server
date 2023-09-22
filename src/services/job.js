@@ -94,7 +94,7 @@ class JobService {
       },
       categories: {
         some: {
-          categories: {
+          category: {
             OR: filters?.categories?.map((category) => ({
               title: {
                 contains: category,
@@ -123,7 +123,7 @@ class JobService {
         ? {
             rangeSalary: {
               min: {
-                gte: +filters.minSalary,
+                gte: +filters?.['min-salary'],
               },
             },
           }
@@ -241,6 +241,16 @@ class JobService {
           },
         },
         rangeSalary: true,
+        skills: {
+          include: {
+            skill: true,
+          },
+        },
+        categories: {
+          include: {
+            category: true,
+          },
+        },
       },
     });
 
@@ -310,6 +320,36 @@ class JobService {
         companyId,
       },
     });
+  };
+
+  static getJobDetailBySlug = async ({ jobSlug, userId }) => {
+    const jobRaw = await JobService.getBySlug(jobSlug);
+    const savedJob = await JobService.getSavedJob({
+      jobId: jobRaw.id,
+      userId,
+    });
+
+    const jobCompanyProfile = jobRaw.company.profile;
+    const jobSkills = jobRaw.skills.map((skill) => skill.skill.title);
+    const jobCategories = jobRaw.categories.map((category) => category.category.title);
+
+    delete jobRaw.company;
+    delete jobRaw.companyId;
+    delete jobRaw.salaryId;
+    delete jobRaw.skills;
+    delete jobRaw.categories;
+
+    const job = {
+      ...jobRaw,
+      company: {
+        profile: jobCompanyProfile,
+      },
+      skills: jobSkills,
+      categories: jobCategories,
+      isSaved: !!savedJob,
+    };
+
+    return job;
   };
 }
 
