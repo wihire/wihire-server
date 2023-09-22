@@ -81,11 +81,15 @@ class JobController {
         }
       }
 
-      console.log(req.query);
+      const filters = {
+        ...req.query,
+        page: +page,
+        limit: +limit,
+      };
 
-      const totalJobs = await JobService.getJobTotal(req.user.user.id, req.query);
+      const totalJobs = await JobService.getJobTotal(req.user.user.id, filters);
       const pagination = getPaginationStatus(page, limit, totalJobs);
-      const jobs = await JobService.getAllJobs(req.user.user.id, req.query);
+      const jobs = await JobService.getAllJobs(req.user.user.id, filters);
 
       return res.status(200).json(
         successResponse({
@@ -103,17 +107,17 @@ class JobController {
   };
 
   static getApplicants = async (req, res, next) => {
-    const { slug } = req.params;
-    let { page, limit } = req.query;
-
-    if (!page || !isNumber(page)) page = 1;
-    if (!limit || !isNumber(limit)) limit = 15;
-
     try {
+      const { slug } = req.params;
+      let { page, limit } = req.query;
+
+      if (!page || !isNumber(page)) page = 1;
+      if (!limit || !isNumber(limit)) limit = 15;
+
       const applicants = await ApplicantService.getApplicants({
         jobSlug: slug,
-        page,
-        limit,
+        page: +page,
+        limit: +limit,
       });
       const totalData = await ApplicantService.getApplicantTotal(slug);
 
@@ -207,6 +211,28 @@ class JobController {
       return res.status(200).json(
         successResponse({
           message: 'Success delete job',
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  static getJobDetailBySlug = async (req, res, next) => {
+    try {
+      const { slug } = req.params;
+
+      const job = await JobService.getJobDetailBySlug({
+        jobSlug: slug,
+        userId: req.user.user.id,
+      });
+
+      return res.status(200).json(
+        successResponse({
+          message: 'Success get job',
+          data: {
+            job,
+          },
         }),
       );
     } catch (error) {

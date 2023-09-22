@@ -94,7 +94,7 @@ class JobService {
       },
       categories: {
         some: {
-          categories: {
+          category: {
             OR: filters?.categories?.map((category) => ({
               title: {
                 contains: category,
@@ -134,12 +134,11 @@ class JobService {
       placeMethod: {
         in: filters?.['place-methods'],
       },
-      ...(filters?.['is-saved'] === 'true'
+      ...((filters?.['is-saved'] === 'true') | (filters?.['is-saved'] === 'false')
         ? {
             savedJobs: {
-              some: {
-                userId: userId,
-              },
+              ...(filters?.['is-saved'] === 'true' ? { some: { userId } } : {}),
+              ...(filters?.['is-saved'] === 'false' ? { none: { userId } } : {}),
             },
           }
         : {}),
@@ -162,8 +161,8 @@ class JobService {
       where: {
         ...JobService.#getJobsFilter(userId, filters),
       },
-      skip: (filters?.page - 1) * filters?.limit || 0,
-      take: +filters?.limit || 15,
+      skip: (filters.page - 1) * filters.limit,
+      take: filters.limit,
       include: {
         company: {
           include: {
@@ -243,6 +242,16 @@ class JobService {
           },
         },
         rangeSalary: true,
+        skills: {
+          include: {
+            skill: true,
+          },
+        },
+        categories: {
+          include: {
+            category: true,
+          },
+        },
       },
     });
 
@@ -312,6 +321,36 @@ class JobService {
         companyId,
       },
     });
+  };
+
+  static getJobDetailBySlug = async ({ jobSlug, userId }) => {
+    const jobRaw = await JobService.getBySlug(jobSlug);
+    const savedJob = await JobService.getSavedJob({
+      jobId: jobRaw.id,
+      userId,
+    });
+
+    const jobCompanyProfile = jobRaw.company.profile;
+    const jobSkills = jobRaw.skills.map((skill) => skill.skill.title);
+    const jobCategories = jobRaw.categories.map((category) => category.category.title);
+
+    delete jobRaw.company;
+    delete jobRaw.companyId;
+    delete jobRaw.salaryId;
+    delete jobRaw.skills;
+    delete jobRaw.categories;
+
+    const job = {
+      ...jobRaw,
+      company: {
+        profile: jobCompanyProfile,
+      },
+      skills: jobSkills,
+      categories: jobCategories,
+      isSaved: !!savedJob,
+    };
+
+    return job;
   };
 }
 
