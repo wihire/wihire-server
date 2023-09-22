@@ -1,15 +1,10 @@
 const prisma = require('../lib/prisma');
-const NotFoundError = require('../exceptions/NotFoundError');
 const JobService = require('./job');
 const STATUS_APPLICATION = require('../constants/statusApplication');
 
 class ApplicantService {
   static getApplicants = async ({ jobSlug, page, limit }) => {
     const job = await JobService.getBySlug(jobSlug);
-
-    if (!job) {
-      throw new NotFoundError('Job not found');
-    }
 
     const applicationsJobRaw = await prisma.applicationList.findMany({
       where: {
@@ -59,10 +54,6 @@ class ApplicantService {
   static getApplicantTotal = async (jobSlug) => {
     const job = await JobService.getBySlug(jobSlug);
 
-    if (!job) {
-      throw new NotFoundError('Job not found');
-    }
-
     const applicationsJob = await prisma.applicationList.count({
       where: {
         jobId: job.id,
@@ -74,10 +65,6 @@ class ApplicantService {
 
   static rejectAllApplicants = async (jobSlug) => {
     const job = await JobService.getBySlug(jobSlug);
-
-    if (!job) {
-      throw new NotFoundError('Job not found');
-    }
 
     const rejectedApplicant = await prisma.applicationList.updateMany({
       where: {

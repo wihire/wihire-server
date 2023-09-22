@@ -194,6 +194,25 @@ class JobController {
       next(error);
     }
   };
+
+  static deleteJob = async (req, res, next) => {
+    try {
+      const { slug: jobSlug } = req.params;
+
+      await JobService.deleteJob({
+        jobSlug,
+        companyId: req.user.company.id,
+      });
+
+      return res.status(200).json(
+        successResponse({
+          message: 'Success delete job',
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 module.exports = JobController;

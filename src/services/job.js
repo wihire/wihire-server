@@ -227,26 +227,32 @@ class JobService {
         slug,
       },
       include: {
-        company: true,
-        categories: true,
+        company: {
+          include: {
+            profile: {
+              select: {
+                id: true,
+                slug: true,
+                name: true,
+                email: true,
+                avatar: true,
+              },
+            },
+          },
+        },
         rangeSalary: true,
-        skills: true,
-      },
-    });
-
-    return job;
-  };
-
-  static saveJob = async ({ jobSlug, userId }) => {
-    const job = await prisma.job.findUnique({
-      where: {
-        slug: jobSlug,
       },
     });
 
     if (!job) {
       throw new NotFoundError('Job not found');
     }
+
+    return job;
+  };
+
+  static saveJob = async ({ jobSlug, userId }) => {
+    const job = await JobService.getBySlug(jobSlug);
 
     const savedJob = await JobService.getSavedJob({
       jobId: job.id,
@@ -268,15 +274,7 @@ class JobService {
   };
 
   static unsaveJob = async ({ jobSlug, userId }) => {
-    const job = await prisma.job.findUnique({
-      where: {
-        slug: jobSlug,
-      },
-    });
-
-    if (!job) {
-      throw new NotFoundError('Job not found');
-    }
+    const job = await JobService.getBySlug(jobSlug);
 
     const savedJob = await JobService.getSavedJob({
       jobId: job.id,
@@ -290,6 +288,26 @@ class JobService {
     await prisma.savedJob.delete({
       where: {
         id: savedJob.id,
+      },
+    });
+  };
+
+  static deleteJob = async ({ jobSlug, companyId }) => {
+    const job = await prisma.job.findFirst({
+      where: {
+        slug: jobSlug,
+        companyId,
+      },
+    });
+
+    if (!job) {
+      throw new NotFoundError('Job not found at your company');
+    }
+
+    await prisma.job.delete({
+      where: {
+        slug: jobSlug,
+        companyId,
       },
     });
   };

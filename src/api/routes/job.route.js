@@ -21,5 +21,6 @@ router.put(
   authorization([ROLE.COMPANY]),
   JobController.rejectAllApplicant,
 );
+router.delete('/:slug', authentication, authorization([ROLE.COMPANY]), JobController.deleteJob);
 
 module.exports = router;
