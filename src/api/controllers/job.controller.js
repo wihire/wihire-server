@@ -199,6 +199,39 @@ class JobController {
     }
   };
 
+  static applyJob = async (req, res, next) => {
+    try {
+      const { slug: jobSlug } = req.params;
+      const { file: resume } = req;
+
+      if (!resume && !req.body?.resumeUrl) {
+        throw new InvariantError('Resume is required', {
+          type: VALIDATION_ERR,
+        });
+      }
+
+      const jobApplied = await JobService.applyJob({
+        jobSlug,
+        userId: req.user.user.id,
+        file: resume,
+        resumeUrl: req.body?.resumeUrl,
+      });
+
+      return res.status(200).json(
+        successResponse({
+          message: 'Success apply job',
+          data: {
+            job: {
+              id: jobApplied.jobId,
+            },
+          },
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
   static deleteJob = async (req, res, next) => {
     try {
       const { slug: jobSlug } = req.params;
