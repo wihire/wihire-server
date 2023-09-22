@@ -78,7 +78,7 @@ class JobService {
     });
   };
 
-  static #getJobsFilter = (filters) => {
+  static #getJobsFilter = (userId, filters) => {
     return {
       title: {
         contains: filters?.title,
@@ -123,7 +123,7 @@ class JobService {
         ? {
             rangeSalary: {
               min: {
-                gte: +filters.minSalary,
+                gte: +filters['min-salary'],
               },
             },
           }
@@ -138,7 +138,7 @@ class JobService {
         ? {
             savedJobs: {
               some: {
-                userId: filters?.userId,
+                userId: userId,
               },
             },
           }
@@ -150,7 +150,7 @@ class JobService {
     console.log(JobService.#getJobsFilter(filters));
     const totalJob = await prisma.job.count({
       where: {
-        ...JobService.#getJobsFilter(filters),
+        ...JobService.#getJobsFilter(userId, filters),
       },
     });
 
@@ -160,8 +160,10 @@ class JobService {
   static getAllJobs = async (userId, filters) => {
     const jobsRaw = await prisma.job.findMany({
       where: {
-        ...JobService.#getJobsFilter(filters),
+        ...JobService.#getJobsFilter(userId, filters),
       },
+      skip: (filters?.page - 1) * filters?.limit || 0,
+      take: +filters?.limit || 15,
       include: {
         company: {
           include: {

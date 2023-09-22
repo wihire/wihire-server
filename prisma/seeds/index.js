@@ -22,13 +22,13 @@ async function main() {
   await seedCompanyTotalEmployee();
   await seedCompanyIndustryScope();
   await seedSkill();
-  await seedJobSkill();
-  await seedCategories();
-  await seedJobCategories();
   await seedSalary();
   await seedCompany();
   await seedUser();
   await seedJob();
+  await seedJobSkill();
+  await seedCategories();
+  await seedJobCategories();
   await seedSavedJob();
   await seedApplicationList();
   await seedUserEducation();
