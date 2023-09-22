@@ -27,6 +27,28 @@ class JobController {
     }
   };
 
+  static updateJob = async (req, res, next) => {
+    try {
+      jobValidation.validateUpdateJobPayload(req.body);
+
+      // const companyId = req.user.company.id;
+      const { slug } = req.params;
+      const job = await JobService.update(slug, req.body);
+
+      return res.status(201).json(
+        successResponse({
+          message: 'Update job succcess',
+          data: {
+            id: job.id,
+            slug: job.slug,
+          },
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
   static getApplicants = async (req, res, next) => {
     const { slug } = req.params;
     let { page, limit } = req.query;
