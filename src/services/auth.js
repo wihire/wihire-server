@@ -267,10 +267,7 @@ class AuthService {
     });
 
     if (!profile) {
-      throw new NotFoundError('profile not found', {
-        statusCode: 404,
-        type: NOT_FOUND_ERR,
-      });
+      throw new NotFoundError('profile not found');
     }
 
     const hashedPassword = await bcrypt.hash(payload.newPassword, 10);

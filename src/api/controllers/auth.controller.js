@@ -69,7 +69,7 @@ class AuthController {
 
       await AuthService.forgotPassword(req.body);
 
-      return res.status(201).json(
+      return res.status(200).json(
         successResponse({
           message: 'Success send email forgot password',
         }),
@@ -101,7 +101,7 @@ class AuthController {
 
       await AuthService.forgotChangePassword(req.body);
 
-      return res.status(201).json(
+      return res.status(200).json(
         successResponse({
           message: 'Success change password',
         }),
