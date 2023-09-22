@@ -13,9 +13,9 @@ exports.getPaginationStatus = (page, limit, totalData) => {
   return {
     totalPage,
     totalData: totalData,
-    nextPage: hasNextPage ? page + 1 : null,
+    nextPage: hasNextPage ? +page + 1 : null,
     prevPage,
-    currentPage: page,
-    limit,
+    currentPage: +page,
+    limit: +limit,
   };
 };
