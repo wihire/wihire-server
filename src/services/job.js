@@ -1,8 +1,9 @@
 const { CONFLICT_ERR } = require('../constants/errorType');
-const ClientError = require('../exceptions/ClientError');
 const InvariantError = require('../exceptions/InvariantError');
 const NotFoundError = require('../exceptions/NotFoundError');
 const { uniqueSlug } = require('../lib/common');
+const FirebaseStorage = require('../lib/firebase/FirebaseStorage');
+const folderStorage = require('../constants/folderStorage');
 const prisma = require('../lib/prisma');
 
 class JobService {
@@ -80,6 +81,139 @@ class JobService {
     });
   };
 
+  static #getJobsFilter = (userId, filters) => {
+    return {
+      title: {
+        contains: filters?.title,
+        mode: 'insensitive',
+      },
+      company: {
+        profile: {
+          name: {
+            contains: filters?.company,
+            mode: 'insensitive',
+          },
+        },
+      },
+      categories: {
+        some: {
+          category: {
+            OR: filters?.categories?.map((category) => ({
+              title: {
+                contains: category,
+                mode: 'insensitive',
+              },
+            })),
+          },
+        },
+      },
+      skills: {
+        some: {
+          skill: {
+            OR: filters?.skills?.map((skill) => ({
+              title: {
+                contains: skill,
+                mode: 'insensitive',
+              },
+            })),
+          },
+        },
+      },
+      status: {
+        equals: filters?.status,
+      },
+      ...(filters?.['min-salary']
+        ? {
+            rangeSalary: {
+              min: {
+                gte: +filters['min-salary'],
+              },
+            },
+          }
+        : {}),
+      jobType: {
+        in: filters?.['job-types'],
+      },
+      placeMethod: {
+        in: filters?.['place-methods'],
+      },
+      ...((filters?.['is-saved'] === 'true') | (filters?.['is-saved'] === 'false')
+        ? {
+            savedJobs: {
+              ...(filters?.['is-saved'] === 'true' ? { some: { userId } } : {}),
+              ...(filters?.['is-saved'] === 'false' ? { none: { userId } } : {}),
+            },
+          }
+        : {}),
+    };
+  };
+
+  static getJobTotal = async (userId, filters) => {
+    console.log(JobService.#getJobsFilter(filters));
+    const totalJob = await prisma.job.count({
+      where: {
+        ...JobService.#getJobsFilter(userId, filters),
+      },
+    });
+
+    return totalJob;
+  };
+
+  static getAllJobs = async (userId, filters) => {
+    const jobsRaw = await prisma.job.findMany({
+      where: {
+        ...JobService.#getJobsFilter(userId, filters),
+      },
+      skip: (filters.page - 1) * filters.limit,
+      take: filters.limit,
+      include: {
+        company: {
+          include: {
+            profile: {
+              select: {
+                slug: true,
+                name: true,
+                email: true,
+                avatar: true,
+              },
+            },
+          },
+        },
+        rangeSalary: true,
+        savedJobs: {
+          where: {
+            userId: {
+              equals: userId,
+            },
+          },
+        },
+      },
+    });
+
+    const jobs = jobsRaw.map((job) => {
+      const jobCompanyProfile = job.company.profile;
+      const isSaved = job.savedJobs.length > 0;
+
+      delete job.company;
+      delete job.savedJobs;
+      delete job.companyId;
+      delete job.salaryId;
+      delete job.description;
+      delete job.minimumQualification;
+      delete job.benefits;
+
+      return {
+        ...job,
+        company: {
+          profile: jobCompanyProfile,
+        },
+        isSaved,
+      };
+    });
+
+    return jobs;
+  };
+
   static getSavedJob = async ({ jobId, userId }) => {
     const savedJob = await prisma.savedJob.findFirst({
       where: {
@@ -97,26 +231,42 @@ class JobService {
         slug,
       },
       include: {
-        company: true,
-        jobCategories: true,
-        salary: true,
-        jobSkills: true,
-      },
-    });
-
-    return job;
-  };
-
-  static saveJob = async ({ jobSlug, userId }) => {
-    const job = await prisma.job.findUnique({
-      where: {
-        slug: jobSlug,
+        company: {
+          include: {
+            profile: {
+              select: {
+                id: true,
+                slug: true,
+                name: true,
+                email: true,
+                avatar: true,
+              },
+            },
+          },
+        },
+        rangeSalary: true,
+        skills: {
+          include: {
+            skill: true,
+          },
+        },
+        categories: {
+          include: {
+            category: true,
+          },
+        },
       },
     });
 
     if (!job) {
       throw new NotFoundError('Job not found');
     }
+
+    return job;
+  };
+
+  static saveJob = async ({ jobSlug, userId }) => {
+    const job = await JobService.getBySlug(jobSlug);
 
     const savedJob = await JobService.getSavedJob({
       jobId: job.id,
@@ -137,17 +287,8 @@ class JobService {
     return newSavedJob;
   };
 
-  static unsaveJob = async ({ jobSlug, jobId, userId }) => {
-    const job = await prisma.job.findUnique({
-      where: {
-        id: jobId,
-        slug: jobSlug,
-      },
-    });
-
-    if (!job) {
-      throw new NotFoundError('Job not found');
-    }
+  static unsaveJob = async ({ jobSlug, userId }) => {
+    const job = await JobService.getBySlug(jobSlug);
 
     const savedJob = await JobService.getSavedJob({
       jobId: job.id,
@@ -165,18 +306,8 @@ class JobService {
     });
   };
 
-  static applyJob = async ({ jobSlug, jobId, userId, url }) => {
-    const job = await prisma.job.findUnique({
-      where: {
-        slug: jobSlug,
-      },
-    });
-
-    console.log(job);
-
-    if (!job) {
-      throw new NotFoundError('Job not found');
-    }
+  static applyJob = async ({ jobSlug, userId, file, resumeUrl }) => {
+    const job = await JobService.getBySlug(jobSlug);
 
     const applicantCheck = await prisma.applicationList.findFirst({
       where: {
@@ -184,13 +315,20 @@ class JobService {
           id: userId,
         },
         job: {
-          id: jobId,
+          id: job.id,
         },
       },
     });
 
     if (applicantCheck) {
-      throw new ClientError('Already Apply This Job', { statusCode: 409, type: CONFLICT_ERR });
+      throw new InvariantError('Already Apply This Job', { statusCode: 409, type: CONFLICT_ERR });
+    }
+
+    let url = resumeUrl;
+    if (file) {
+      ({ url } = await FirebaseStorage.upload(file, {
+        folder: folderStorage.firebaseStorage.RESUME,
+      }));
     }
 
     const applyJob = await prisma.applicationList.create({
@@ -210,6 +348,56 @@ class JobService {
     });
 
     return applyJob;
+  };
+
+  static deleteJob = async ({ jobSlug, companyId }) => {
+    const job = await prisma.job.findFirst({
+      where: {
+        slug: jobSlug,
+        companyId,
+      },
+    });
+
+    if (!job) {
+      throw new NotFoundError('Job not found at your company');
+    }
+
+    await prisma.job.delete({
+      where: {
+        slug: jobSlug,
+        companyId,
+      },
+    });
+  };
+
+  static getJobDetailBySlug = async ({ jobSlug, userId }) => {
+    const jobRaw = await JobService.getBySlug(jobSlug);
+    const savedJob = await JobService.getSavedJob({
+      jobId: jobRaw.id,
+      userId,
+    });
+
+    const jobCompanyProfile = jobRaw.company.profile;
+    const jobSkills = jobRaw.skills.map((skill) => skill.skill.title);
+    const jobCategories = jobRaw.categories.map((category) => category.category.title);
+
+    delete jobRaw.company;
+    delete jobRaw.companyId;
+    delete jobRaw.salaryId;
+    delete jobRaw.skills;
+    delete jobRaw.categories;
+
+    const job = {
+      ...jobRaw,
+      company: {
+        profile: jobCompanyProfile,
+      },
+      skills: jobSkills,
+      categories: jobCategories,
+      isSaved: !!savedJob,
+    };
+
+    return job;
   };
 }
 

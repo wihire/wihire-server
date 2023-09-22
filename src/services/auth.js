@@ -5,13 +5,13 @@ const prisma = require('../lib/prisma');
 const AuthtenticationError = require('../exceptions/AuthenticationError');
 const {
   generateAccessToken,
+  generateForgotPasswordToken,
   generateVerifyEmailToken,
   decodeToken,
 } = require('../lib/tokenManager');
 const ClientError = require('../exceptions/ClientError');
 const { CONFLICT_ERR } = require('../constants/errorType');
 const NotFoundError = require('../exceptions/NotFoundError');
-const { NOT_FOUND_ERR } = require('../constants/errorType');
 const { sendEmail } = require('../lib/nodemailer');
 
 class AuthService {
@@ -126,10 +126,7 @@ class AuthService {
       });
 
       if (!companyTotalEmployee) {
-        throw new NotFoundError('Company total employee not found', {
-          statusCode: 404,
-          type: NOT_FOUND_ERR,
-        });
+        throw new NotFoundError('Company total employee not found');
       }
 
       const newProfile = await tx.profile.create({
@@ -148,10 +145,10 @@ class AuthService {
                   id: companyScope.id,
                 },
               },
-            },
-            totalEmployee: {
-              connect: {
-                id: companyTotalEmployee.id,
+              totalEmployee: {
+                connect: {
+                  id: companyTotalEmployee.id,
+                },
               },
             },
           },
@@ -178,7 +175,7 @@ class AuthService {
     });
 
     if (!profile) {
-      throw new NotFoundError('Account not found');
+      throw new NotFoundError('Profile not found');
     }
 
     const verifyEmailPayload = {
@@ -222,6 +219,62 @@ class AuthService {
         isVerifiedEmail: profile.isVerifiedEmail,
       },
     };
+  };
+
+  static forgotPassword = async (payload) => {
+    const profile = await prisma.profile.findUnique({
+      where: {
+        email: payload.email,
+      },
+    });
+
+    if (!profile) {
+      throw new NotFoundError('Profile not found');
+    }
+
+    const forgotPasswordPayload = {
+      id: profile.id,
+      email: profile.email,
+    };
+
+    const forgotPasswordToken = generateForgotPasswordToken(forgotPasswordPayload);
+
+    await sendEmail({
+      to: payload.email,
+      subject: 'Forgot Password',
+      // eslint-disable-next-line max-len
+      text: `Click This Link For Change Password: http://localhost:3000/forgot-password?token=${forgotPasswordToken}`,
+    });
+  };
+
+  static forgotChangePassword = async (payload) => {
+    const data = await decodeToken(
+      payload.token,
+      process.env.VERIFY_FORGOT_PASSWORD_TOKEN_SECRET_KEY,
+    );
+
+    const profile = await prisma.profile.findUnique({
+      where: {
+        id: data.id,
+      },
+    });
+
+    if (!profile) {
+      throw new NotFoundError('profile not found');
+    }
+
+    const hashedPassword = await bcrypt.hash(payload.newPassword, 10);
+
+    const updateProfile = await prisma.profile.update({
+      where: {
+        id: data.id,
+      },
+      data: {
+        password: hashedPassword,
+      },
+    });
+
+    return updateProfile;
   };
 }
 

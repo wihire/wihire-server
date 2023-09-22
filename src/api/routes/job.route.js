@@ -7,6 +7,7 @@ const upload = require('../middlewares/uploadFile');
 const router = require('express').Router();
 
 router.post('/', authentication, authorization([ROLE.COMPANY]), JobController.createJob);
+router.get('/', authentication, JobController.getJobs);
 router.post('/:slug/save', authentication, authorization([ROLE.USER]), JobController.saveJob);
 router.delete('/:slug/unsave', authentication, authorization([ROLE.USER]), JobController.unsaveJob);
 router.get(
@@ -21,6 +22,8 @@ router.put(
   authorization([ROLE.COMPANY]),
   JobController.rejectAllApplicant,
 );
+router.get('/:slug', authentication, JobController.getJobDetailBySlug);
+router.delete('/:slug', authentication, authorization([ROLE.COMPANY]), JobController.deleteJob);
 
 router.post(
   '/:slug/apply',

@@ -285,8 +285,8 @@ model JobCategory {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @default(now())
 
-  categories Category @relation(fields: [categoryId], references: [id])
-  job        Job      @relation(fields: [jobId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  category     Category @relation(fields: [categoryId], references: [id])
+  job          Job      @relation(fields: [jobId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model ApplicationList {
@@ -298,6 +298,6 @@ model ApplicationList {
   updatedAt DateTime          @default(now())
   status    StatusApplication @default(ONPROGRESS)
 
-  user User @relation(fields: [userId], references: [id])
-  job  Job  @relation(fields: [jobId], references: [id])
+  user User @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  job  Job  @relation(fields: [jobId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
