@@ -8,7 +8,7 @@ const JOB_CATEGORIES = [
         id: '6a58a4c1-5aaf-4307-be09-82f3879c8817',
       },
     },
-    categories: {
+    category: {
       connect: {
         id: '5c99b520-54cc-11ee-8c99-0242ac120009',
       },
@@ -21,7 +21,7 @@ const JOB_CATEGORIES = [
         id: '6a58a4c1-5aaf-4307-be09-82f3879c8817',
       },
     },
-    categories: {
+    category: {
       connect: {
         id: '5c99b520-54cc-11ee-8c99-0242ac120005',
       },
@@ -34,7 +34,7 @@ const JOB_CATEGORIES = [
         id: '6a58a4c1-5aaf-4307-be09-82f3879c8818',
       },
     },
-    categories: {
+    category: {
       connect: {
         id: '5c99b520-54cc-11ee-8c99-0242ac120005',
       },
@@ -47,7 +47,7 @@ const JOB_CATEGORIES = [
         id: '6a58a4c1-5aaf-4307-be09-82f3879c8818',
       },
     },
-    categories: {
+    category: {
       connect: {
         id: '5c99b520-54cc-11ee-8c99-0242ac120009',
       },
@@ -60,7 +60,7 @@ const JOB_CATEGORIES = [
         id: '6a58a4c1-5aaf-4307-be09-82f3879c8818',
       },
     },
-    categories: {
+    category: {
       connect: {
         id: '5c99b520-54cc-11ee-8c99-0242ac120012',
       },
@@ -73,7 +73,7 @@ const JOB_CATEGORIES = [
         id: '6a58a4c1-5aaf-4307-be09-82f3879c8819',
       },
     },
-    categories: {
+    category: {
       connect: {
         id: '5c99b520-54cc-11ee-8c99-0242ac120002',
       },
@@ -86,7 +86,7 @@ const JOB_CATEGORIES = [
         id: '6a58a4c1-5aaf-4307-be09-82f3879c8819',
       },
     },
-    categories: {
+    category: {
       connect: {
         id: '5c99b520-54cc-11ee-8c99-0242ac120003',
       },
@@ -99,7 +99,7 @@ const JOB_CATEGORIES = [
         id: '6a58a4c1-5aaf-4307-be09-82f3879c8819',
       },
     },
-    categories: {
+    category: {
       connect: {
         id: '5c99b520-54cc-11ee-8c99-0242ac120006',
       },
@@ -112,7 +112,7 @@ const JOB_CATEGORIES = [
         id: '6a58a4c1-5aaf-4307-be09-82f3879c8819',
       },
     },
-    categories: {
+    category: {
       connect: {
         id: '5c99b520-54cc-11ee-8c99-0242ac120019',
       },
@@ -125,7 +125,7 @@ const JOB_CATEGORIES = [
         id: '6a58a4c1-5aaf-4307-be09-82f3879c8819',
       },
     },
-    categories: {
+    category: {
       connect: {
         id: '5c99b520-54cc-11ee-8c99-0242ac120020',
       },
@@ -138,7 +138,7 @@ const JOB_CATEGORIES = [
         id: '6a58a4c1-5aaf-4307-be09-82f3879c8820',
       },
     },
-    categories: {
+    category: {
       connect: {
         id: '5c99b520-54cc-11ee-8c99-0242ac120006',
       },
@@ -151,7 +151,7 @@ const JOB_CATEGORIES = [
         id: '6a58a4c1-5aaf-4307-be09-82f3879c8820',
       },
     },
-    categories: {
+    category: {
       connect: {
         id: '5c99b520-54cc-11ee-8c99-0242ac120020',
       },
@@ -164,7 +164,7 @@ const JOB_CATEGORIES = [
         id: '6a58a4c1-5aaf-4307-be09-82f3879c8820',
       },
     },
-    categories: {
+    category: {
       connect: {
         id: '5c99b520-54cc-11ee-8c99-0242ac120022',
       },
@@ -177,7 +177,7 @@ const JOB_CATEGORIES = [
         id: '6a58a4c1-5aaf-4307-be09-82f3879c8820',
       },
     },
-    categories: {
+    category: {
       connect: {
         id: '5c99b520-54cc-11ee-8c99-0242ac120028',
       },
@@ -190,7 +190,7 @@ const JOB_CATEGORIES = [
         id: '6a58a4c1-5aaf-4307-be09-82f3879c8821',
       },
     },
-    categories: {
+    category: {
       connect: {
         id: '5c99b520-54cc-11ee-8c99-0242ac120002',
       },
@@ -203,7 +203,7 @@ const JOB_CATEGORIES = [
         id: '6a58a4c1-5aaf-4307-be09-82f3879c8821',
       },
     },
-    categories: {
+    category: {
       connect: {
         id: '5c99b520-54cc-11ee-8c99-0242ac120003',
       },
@@ -216,7 +216,7 @@ const JOB_CATEGORIES = [
         id: '6a58a4c1-5aaf-4307-be09-82f3879c8821',
       },
     },
-    categories: {
+    category: {
       connect: {
         id: '5c99b520-54cc-11ee-8c99-0242ac120006',
       },
@@ -229,7 +229,7 @@ const JOB_CATEGORIES = [
         id: '6a58a4c1-5aaf-4307-be09-82f3879c8821',
       },
     },
-    categories: {
+    category: {
       connect: {
         id: '5c99b520-54cc-11ee-8c99-0242ac120011',
       },
@@ -242,7 +242,7 @@ const JOB_CATEGORIES = [
         id: '6a58a4c1-5aaf-4307-be09-82f3879c8821',
       },
     },
-    categories: {
+    category: {
       connect: {
         id: '5c99b520-54cc-11ee-8c99-0242ac120020',
       },
@@ -255,7 +255,7 @@ const JOB_CATEGORIES = [
         id: '6a58a4c1-5aaf-4307-be09-82f3879c8822',
       },
     },
-    categories: {
+    category: {
       connect: {
         id: '5c99b520-54cc-11ee-8c99-0242ac120005',
       },
@@ -268,7 +268,7 @@ const JOB_CATEGORIES = [
         id: '6a58a4c1-5aaf-4307-be09-82f3879c8822',
       },
     },
-    categories: {
+    category: {
       connect: {
         id: '5c99b520-54cc-11ee-8c99-0242ac120006',
       },
@@ -281,7 +281,7 @@ const JOB_CATEGORIES = [
         id: '6a58a4c1-5aaf-4307-be09-82f3879c8822',
       },
     },
-    categories: {
+    category: {
       connect: {
         id: '5c99b520-54cc-11ee-8c99-0242ac120009',
       },
