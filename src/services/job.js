@@ -136,44 +136,96 @@ class JobService {
         }),
       );
 
-      const updateJob = await tx.job.update({
+      const salaary = await tx.job.findFirst({
         where: {
           slug: jobSlug,
         },
-        data: {
-          placeMethod: payload.placeMethod,
-          jobType: payload.jobType,
-          title: payload.title,
-          province: payload.province,
-          address: payload.address,
-          description: payload.description,
-          minimumQualification: payload.minimumQualification,
-          benefit: payload.benefit,
-          status: payload.status,
-          rangeSalary: {
-            create: {
-              min: payload.minimalSalary,
-              max: payload.maximalSalary,
+      });
+
+      if (!salaary.salaryId) {
+        const updateJob = await tx.job.update({
+          where: {
+            slug: jobSlug,
+          },
+          data: {
+            placeMethod: payload.placeMethod,
+            jobType: payload.jobType,
+            title: payload.title,
+            province: payload.province,
+            address: payload.address,
+            description: payload.description,
+            minimumQualification: payload.minimumQualification,
+            benefit: payload.benefit,
+            status: payload.status,
+            rangeSalary: {
+              create: {
+                min: payload.minimalSalary,
+                max: payload.maximalSalary,
+              },
             },
           },
-        },
-      });
+        });
 
-      await tx.jobSkill.createMany({
-        data: skills.map((skill) => ({
-          skillId: skill.id,
-          jobId: updateJob.id,
-        })),
-      });
+        await tx.jobSkill.createMany({
+          data: skills.map((skill) => ({
+            skillId: skill.id,
+            jobId: updateJob.id,
+          })),
+        });
 
-      await tx.jobCategory.createMany({
-        data: categories.map((category) => ({
-          categoryId: category.id,
-          jobId: updateJob.id,
-        })),
-      });
+        await tx.jobCategory.createMany({
+          data: categories.map((category) => ({
+            categoryId: category.id,
+            jobId: updateJob.id,
+          })),
+        });
 
-      return updateJob;
+        return updateJob;
+      } else {
+        await tx.salary.update({
+          where: {
+            id: salaary.salaryId,
+          },
+
+          data: {
+            min: payload.minimalSalary,
+            max: payload.maximalSalary,
+          },
+        });
+
+        const updateJob = await tx.job.update({
+          where: {
+            slug: jobSlug,
+          },
+          data: {
+            placeMethod: payload.placeMethod,
+            jobType: payload.jobType,
+            title: payload.title,
+            province: payload.province,
+            address: payload.address,
+            description: payload.description,
+            minimumQualification: payload.minimumQualification,
+            benefit: payload.benefit,
+            status: payload.status,
+          },
+        });
+
+        await tx.jobSkill.createMany({
+          data: skills.map((skill) => ({
+            skillId: skill.id,
+            jobId: updateJob.id,
+          })),
+        });
+
+        await tx.jobCategory.createMany({
+          data: categories.map((category) => ({
+            categoryId: category.id,
+            jobId: updateJob.id,
+          })),
+        });
+
+        return updateJob;
+      }
     });
   };
 
