@@ -1,6 +1,6 @@
 const prisma = require('../../src/lib/prisma');
 
-const SAVEDJOB = [
+const SAVED_JOB = [
   {
     id: 'ae8d6a8a-5764-11ee-8c99-0242ac120002',
     user: {
@@ -187,7 +187,7 @@ const SAVEDJOB = [
 
 const seedSavedJob = async () => {
   await Promise.all(
-    SAVEDJOB.map(async (savedJob) => {
+    SAVED_JOB.map(async (savedJob) => {
       await prisma.savedJob.upsert({
         where: { id: savedJob.id },
         update: {},

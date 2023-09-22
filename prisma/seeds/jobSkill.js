@@ -1,6 +1,6 @@
 const prisma = require('../../src/lib/prisma');
 
-const JOBSKILL = [
+const JOB_SKILLS = [
   {
     id: '1c263866-5769-11ee-8c99-0242ac120002',
     job: {
@@ -239,7 +239,7 @@ const JOBSKILL = [
 
 const seedJobSkill = async () => {
   await Promise.all(
-    JOBSKILL.map(async (jobSkill) => {
+    JOB_SKILLS.map(async (jobSkill) => {
       await prisma.jobSkill.upsert({
         where: { id: jobSkill.id },
         update: {},

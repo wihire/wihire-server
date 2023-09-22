@@ -1,308 +1,297 @@
+const InvariantError = require('../exceptions/InvariantError');
+const NotFoundError = require('../exceptions/NotFoundError');
+const { uniqueSlug } = require('../lib/common');
 const prisma = require('../lib/prisma');
 
-const prepareFilters = (params) => {
-  let filterContainer = [];
-  params.map((param) => {
-    const filter = {
-      title: {
-        contains: param,
-        mode: 'insensitive',
-      },
-    };
-    filterContainer.push(filter);
-  });
-  return filterContainer;
-};
-
 class JobService {
-  static countJobs = async ({ ...filters }, reqUserId) => {
-    let filterCategories;
-    let filterJobSkills;
-    let filterJobTypes;
-    let filterPlaceMethods;
-    let filterIsSaved;
+  static create = async (companyId, payload) => {
+    return await prisma.$transaction(async (tx) => {
+      const skills = await Promise.all(
+        payload.skills.map(async (skill) => {
+          return await tx.skill.upsert({
+            where: {
+              title: skill,
+            },
+            update: {},
+            create: {
+              title: skill,
+            },
+          });
+        }),
+      );
 
-    if (Array.isArray(filters.categories)) {
-      filterCategories = prepareFilters(filters.categories);
-    }
+      const categories = await Promise.all(
+        payload.categories.map(async (category) => {
+          return await tx.category.upsert({
+            where: {
+              title: category,
+            },
+            update: {},
+            create: {
+              title: category,
+            },
+          });
+        }),
+      );
 
-    if (Array.isArray(filters.skills)) {
-      filterJobSkills = prepareFilters(filters.skills);
-    }
-
-    if (Array.isArray(filters['job-types'])) {
-      filterJobTypes = [];
-      filters['job-types'].map((jobType) => {
-        const filter = {
-          jobType: jobType.toUpperCase(),
-        };
-        filterJobTypes.push(filter);
-      });
-    }
-
-    if (Array.isArray(filters['place-methods'])) {
-      filterPlaceMethods = [];
-      filters['place-methods'].map((placeMethod) => {
-        const filter = {
-          placeMethod: placeMethod.toUpperCase(),
-        };
-        filterPlaceMethods.push(filter);
-      });
-    }
-
-    if (filters['is-saved'] === 'true') {
-      filterIsSaved = true;
-    } else if (filters['is-saved'] === 'false' || filters['is-saved'] === undefined) {
-      filterIsSaved = false;
-    } else {
-      throw new Error('Bad request');
-    }
-
-    try {
-      const totalJobs = await prisma.job.count({
-        where: {
-          title: {
-            contains: filters?.title,
-            mode: 'insensitive',
-          },
+      const newJob = await tx.job.create({
+        data: {
           company: {
-            profile: {
-              name: {
-                contains: filters?.company,
-                mode: 'insensitive',
-              },
+            connect: {
+              id: companyId,
             },
           },
-          jobCategories: {
-            some: {
-              categories: {
-                ...(filterCategories
-                  ? {
-                      OR: filterCategories,
-                    }
-                  : {
-                      title: {
-                        contains: filters?.categories,
-                        mode: 'insensitive',
-                      },
-                    }),
-              },
+          slug: uniqueSlug(payload.title),
+          placeMethod: payload.placeMethod,
+          jobType: payload.jobType,
+          title: payload.title,
+          province: payload.province,
+          address: payload.address,
+          description: payload.description,
+          minimumQualification: payload.minimumQualification,
+          benefit: payload.benefit,
+          status: payload.status,
+          rangeSalary: {
+            create: {
+              min: payload.minimalSalary,
+              max: payload.maximalSalary,
             },
-          },
-          jobSkills: {
-            some: {
-              skill: {
-                ...(filterJobSkills
-                  ? {
-                      OR: filterJobSkills,
-                    }
-                  : {
-                      title: {
-                        contains: filters?.skills,
-                        mode: 'insensitive',
-                      },
-                    }),
-              },
-            },
-          },
-          ...(filters['min-salary']
-            ? {
-                salary: {
-                  min: {
-                    gte: +filters['min-salary'],
-                  },
-                },
-              }
-            : {}),
-          ...(filterJobTypes
-            ? {
-                OR: filterJobTypes,
-              }
-            : {
-                jobType: filters['job-types']?.toUpperCase(),
-              }),
-          ...(filterPlaceMethods
-            ? {
-                OR: filterPlaceMethods,
-              }
-            : {
-                placeMethod: filters['place-methods']?.toUpperCase(),
-              }),
-          ...(filterIsSaved
-            ? {
-                savedJobs: {
-                  some: {
-                    userId: reqUserId,
-                  },
-                },
-              }
-            : {}),
-          status: {
-            equals: filters?.status?.toUpperCase(),
           },
         },
       });
-      return totalJobs;
-    } catch (error) {
-      console.log(error);
-    }
+
+      await tx.jobSkill.createMany({
+        data: skills.map((skill) => ({
+          skillId: skill.id,
+          jobId: newJob.id,
+        })),
+      });
+
+      await tx.jobCategory.createMany({
+        data: categories.map((category) => ({
+          categoryId: category.id,
+          jobId: newJob.id,
+        })),
+      });
+
+      return newJob;
+    });
   };
 
-  static getAllJobs = async ({ ...filters }, reqUserId) => {
-    let filterCategories;
-    let filterJobSkills;
-    let filterJobTypes;
-    let filterPlaceMethods;
-    let filterIsSaved;
-
-    if (Array.isArray(filters.categories)) {
-      filterCategories = prepareFilters(filters.categories);
-    }
-
-    if (Array.isArray(filters.skills)) {
-      filterJobSkills = prepareFilters(filters.skills);
-    }
-
-    if (Array.isArray(filters['job-types'])) {
-      filterJobTypes = [];
-      filters['job-types'].map((jobType) => {
-        const filter = {
-          jobType: jobType.toUpperCase(),
-        };
-        filterJobTypes.push(filter);
-      });
-    }
-
-    if (Array.isArray(filters['place-methods'])) {
-      filterPlaceMethods = [];
-      filters['place-methods'].map((placeMethod) => {
-        const filter = {
-          placeMethod: placeMethod.toUpperCase(),
-        };
-        filterPlaceMethods.push(filter);
-      });
-    }
-
-    if (filters['is-saved'] === 'true') {
-      filterIsSaved = true;
-    } else if (filters['is-saved'] === 'false' || filters['is-saved'] === undefined) {
-      filterIsSaved = false;
-    } else {
-      throw new Error('Bad request');
-    }
-
-    try {
-      const jobs = await prisma.job.findMany({
-        where: {
-          title: {
-            contains: filters?.title,
+  static #getJobsFilter = (filters) => {
+    return {
+      title: {
+        contains: filters?.title,
+        mode: 'insensitive',
+      },
+      company: {
+        profile: {
+          name: {
+            contains: filters?.company,
             mode: 'insensitive',
           },
-          company: {
-            profile: {
-              name: {
-                contains: filters?.company,
+        },
+      },
+      categories: {
+        some: {
+          categories: {
+            OR: filters?.categories?.map((category) => ({
+              title: {
+                contains: category,
                 mode: 'insensitive',
               },
-            },
-          },
-          jobCategories: {
-            some: {
-              categories: {
-                ...(filterCategories
-                  ? {
-                      OR: filterCategories,
-                    }
-                  : {
-                      title: {
-                        contains: filters?.categories,
-                        mode: 'insensitive',
-                      },
-                    }),
-              },
-            },
-          },
-          jobSkills: {
-            some: {
-              skill: {
-                ...(filterJobSkills
-                  ? {
-                      OR: filterJobSkills,
-                    }
-                  : {
-                      title: {
-                        contains: filters?.skills,
-                        mode: 'insensitive',
-                      },
-                    }),
-              },
-            },
-          },
-          ...(filters['min-salary']
-            ? {
-                salary: {
-                  min: {
-                    gte: +filters['min-salary'],
-                  },
-                },
-              }
-            : {}),
-          ...(filterJobTypes
-            ? {
-                OR: filterJobTypes,
-              }
-            : {
-                jobType: filters['job-types']?.toUpperCase(),
-              }),
-          ...(filterPlaceMethods
-            ? {
-                OR: filterPlaceMethods,
-              }
-            : {
-                placeMethod: filters['place-methods']?.toUpperCase(),
-              }),
-          ...(filterIsSaved
-            ? {
-                savedJobs: {
-                  some: {
-                    userId: reqUserId,
-                  },
-                },
-              }
-            : {}),
-          status: {
-            equals: filters?.status?.toUpperCase(),
+            })),
           },
         },
-        skip: (filters.page - 1) * filters.limit || undefined,
-        take: +filters.limit || undefined,
-        include: {
-          company: {
-            include: {
-              profile: {
-                select: {
-                  slug: true,
-                  name: true,
-                  email: true,
-                  avatar: true,
-                },
+      },
+      skills: {
+        some: {
+          skill: {
+            OR: filters?.skills?.map((skill) => ({
+              title: {
+                contains: skill,
+                mode: 'insensitive',
+              },
+            })),
+          },
+        },
+      },
+      status: {
+        equals: filters?.status,
+      },
+      ...(filters?.['min-salary']
+        ? {
+            rangeSalary: {
+              min: {
+                gte: +filters.minSalary,
               },
             },
-          },
-          salary: true,
-          savedJobs: {
-            where: {
-              userId: {
-                equals: reqUserId,
+          }
+        : {}),
+      jobType: {
+        in: filters?.['job-types'],
+      },
+      placeMethod: {
+        in: filters?.['place-methods'],
+      },
+      ...(filters?.['is-saved'] === 'true'
+        ? {
+            savedJobs: {
+              some: {
+                userId: filters?.userId,
+              },
+            },
+          }
+        : {}),
+    };
+  };
+
+  static getJobTotal = async (userId, filters) => {
+    console.log(JobService.#getJobsFilter(filters));
+    const totalJob = await prisma.job.count({
+      where: {
+        ...JobService.#getJobsFilter(filters),
+      },
+    });
+
+    return totalJob;
+  };
+
+  static getAllJobs = async (userId, filters) => {
+    const jobsRaw = await prisma.job.findMany({
+      where: {
+        ...JobService.#getJobsFilter(filters),
+      },
+      include: {
+        company: {
+          include: {
+            profile: {
+              select: {
+                slug: true,
+                name: true,
+                email: true,
+                avatar: true,
               },
             },
           },
         },
-      });
-      return jobs;
-    } catch (error) {
-      console.log(error);
+        rangeSalary: true,
+        savedJobs: {
+          where: {
+            userId: {
+              equals: userId,
+            },
+          },
+        },
+      },
+    });
+
+    const jobs = jobsRaw.map((job) => {
+      const jobCompanyProfile = job.company.profile;
+      const isSaved = job.savedJobs.length > 0;
+
+      delete job.company;
+      delete job.savedJobs;
+      delete job.companyId;
+      delete job.salaryId;
+      delete job.description;
+      delete job.minimumQualification;
+      delete job.benefits;
+
+      return {
+        ...job,
+        company: {
+          profile: jobCompanyProfile,
+        },
+        isSaved,
+      };
+    });
+
+    return jobs;
+  };
+
+  static getSavedJob = async ({ jobId, userId }) => {
+    const savedJob = await prisma.savedJob.findFirst({
+      where: {
+        jobId,
+        userId,
+      },
+    });
+
+    return savedJob;
+  };
+
+  static getBySlug = async (slug) => {
+    const job = await prisma.job.findUnique({
+      where: {
+        slug,
+      },
+      include: {
+        company: true,
+        categories: true,
+        rangeSalary: true,
+        skills: true,
+      },
+    });
+
+    return job;
+  };
+
+  static saveJob = async ({ jobSlug, userId }) => {
+    const job = await prisma.job.findUnique({
+      where: {
+        slug: jobSlug,
+      },
+    });
+
+    if (!job) {
+      throw new NotFoundError('Job not found');
     }
+
+    const savedJob = await JobService.getSavedJob({
+      jobId: job.id,
+      userId,
+    });
+
+    if (savedJob) {
+      throw new InvariantError('You already save this job');
+    }
+
+    const newSavedJob = await prisma.savedJob.create({
+      data: {
+        jobId: job.id,
+        userId,
+      },
+    });
+
+    return newSavedJob;
+  };
+
+  static unsaveJob = async ({ jobSlug, userId }) => {
+    const job = await prisma.job.findUnique({
+      where: {
+        slug: jobSlug,
+      },
+    });
+
+    if (!job) {
+      throw new NotFoundError('Job not found');
+    }
+
+    const savedJob = await JobService.getSavedJob({
+      jobId: job.id,
+      userId,
+    });
+
+    if (!savedJob) {
+      throw new NotFoundError('Saved job not found');
+    }
+
+    await prisma.savedJob.delete({
+      where: {
+        id: savedJob.id,
+      },
+    });
   };
 }
 

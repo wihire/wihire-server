@@ -1,6 +1,6 @@
 const prisma = require('../../src/lib/prisma');
 
-const JOBCATEGORIES = [
+const JOB_CATEGORIES = [
   {
     id: 'f613a332-56e8-11ee-8c99-0242ac120002',
     job: {
@@ -291,7 +291,7 @@ const JOBCATEGORIES = [
 
 const seedJobCategories = async () => {
   await Promise.all(
-    JOBCATEGORIES.map(async (jobCategory) => {
+    JOB_CATEGORIES.map(async (jobCategory) => {
       await prisma.jobCategory.upsert({
         where: { id: jobCategory.id },
         update: {},
