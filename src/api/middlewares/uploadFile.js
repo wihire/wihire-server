@@ -29,7 +29,7 @@ const uploadPDF = multer({
   fileFilter: fileFilter(['application/pdf']),
 });
 
-const upload = (type) => (engine, option) => (req, res, next) => {
+const upload = (type) => (engine, options) => (req, res, next) => {
   let uploadEngine;
   switch (type) {
     case 'image':
@@ -40,9 +40,8 @@ const upload = (type) => (engine, option) => (req, res, next) => {
       break;
   }
 
-  uploadEngine[engine](...option)(req, res, (err) => {
+  uploadEngine[engine](...options)(req, res, (err) => {
     if (err) {
-      console.log(err);
       if (err instanceof multer.MulterError) {
         if (err.code === 'LIMIT_UNEXPECTED_FILE') {
           next(new InvariantError('File you upload exceeds the maximum limit'));

@@ -62,6 +62,74 @@ class AuthController {
       next(error);
     }
   };
+
+  static forgotPassword = async (req, res, next) => {
+    try {
+      authValidation.validateForgotPasswordPayload(req.body);
+
+      await AuthService.forgotPassword(req.body);
+
+      return res.status(200).json(
+        successResponse({
+          message: 'Success send email forgot password',
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  static verificationEmail = async (req, res, next) => {
+    try {
+      authValidation.validateVerificationEmailPayload(req.body);
+
+      await AuthService.verificationEmail(req.body);
+
+      return res.status(200).json(
+        successResponse({
+          message: 'Success send email verification',
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  static forgotChangePassword = async (req, res, next) => {
+    try {
+      authValidation.validateForgotChangePasswordPayload(req.body);
+
+      await AuthService.forgotChangePassword(req.body);
+
+      return res.status(200).json(
+        successResponse({
+          message: 'Success change password',
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  static verifyEmail = async (req, res, next) => {
+    try {
+      authValidation.validateVerifyEmailPayload(req.body);
+
+      const { accessToken, profile } = await AuthService.verifyEmail(req.body);
+
+      return res.status(200).json(
+        successResponse({
+          message: 'Your email is verified',
+          data: {
+            accessToken,
+            profile,
+          },
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 module.exports = AuthController;
