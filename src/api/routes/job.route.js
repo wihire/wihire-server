@@ -33,4 +33,6 @@ router.post(
   JobController.applyJob,
 );
 
+router.get('/:jobSlug/applicants/:userSlug', JobController.getApplicantsDetails);
+
 module.exports = router;
