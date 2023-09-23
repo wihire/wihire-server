@@ -9,6 +9,7 @@ const InvariantError = require('../../exceptions/InvariantError');
 const { VALIDATION_ERR } = require('../../constants/errorType');
 const PLACE_METHOD = require('../../constants/pladeMethod');
 const JOB_STATUS = require('../../constants/jobStatus');
+const STATUS_APPLICATION = require('../../constants/statusApplication');
 
 class JobController {
   static createJob = async (req, res, next) => {
@@ -233,6 +234,34 @@ class JobController {
           data: {
             job,
           },
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  static updateApplicants = async (req, res, next) => {
+    try {
+      const { slug: jobSlug, userSlug } = req.params;
+      const { status } = req.body;
+
+      if (!status) {
+        throw new InvariantError('Status is required', { type: VALIDATION_ERR });
+      }
+
+      const statusApplicationValues = Object.values(STATUS_APPLICATION);
+      if (!statusApplicationValues.includes(status)) {
+        throw new InvariantError(`Status is not valid (${statusApplicationValues.join(', ')})`, {
+          type: VALIDATION_ERR,
+        });
+      }
+
+      await ApplicantService.updateStatusApplicant(jobSlug, userSlug, status);
+
+      return res.status(200).json(
+        successResponse({
+          message: 'Success update job applicant',
         }),
       );
     } catch (error) {
