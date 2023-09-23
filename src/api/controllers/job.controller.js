@@ -4,12 +4,12 @@ const ApplicantService = require('../../services/applicant');
 const { isNumber } = require('../../lib/common');
 const JobService = require('../../services/job');
 const jobValidation = require('../../validations/job');
+const applicantValidation = require('../../validations/applicant');
 const JOB_TYPE = require('../../constants/jobType');
 const InvariantError = require('../../exceptions/InvariantError');
 const { VALIDATION_ERR } = require('../../constants/errorType');
 const PLACE_METHOD = require('../../constants/pladeMethod');
 const JOB_STATUS = require('../../constants/jobStatus');
-const STATUS_APPLICATION = require('../../constants/statusApplication');
 
 class JobController {
   static createJob = async (req, res, next) => {
@@ -244,18 +244,9 @@ class JobController {
   static updateApplicants = async (req, res, next) => {
     try {
       const { slug: jobSlug, userSlug } = req.params;
+
+      applicantValidation.validateUpdateApplicantPayload(req.body);
       const { status } = req.body;
-
-      if (!status) {
-        throw new InvariantError('Status is required', { type: VALIDATION_ERR });
-      }
-
-      const statusApplicationValues = Object.values(STATUS_APPLICATION);
-      if (!statusApplicationValues.includes(status)) {
-        throw new InvariantError(`Status is not valid (${statusApplicationValues.join(', ')})`, {
-          type: VALIDATION_ERR,
-        });
-      }
 
       await ApplicantService.updateStatusApplicant(jobSlug, userSlug, status);
 
