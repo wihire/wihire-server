@@ -1,5 +1,4 @@
 const ROLE = require('../../constants/role');
-const ApplicationController = require('../controllers/application.controller');
 const JobController = require('../controllers/job.controller');
 const authentication = require('../middlewares/authentication');
 const { authorization } = require('../middlewares/authorization');
@@ -33,12 +32,11 @@ router.post(
   upload('pdf')('single', ['resume']),
   JobController.applyJob,
 );
-
 router.get(
   '/:slug/applicants/:userSlug',
   authentication,
   authorization([ROLE.COMPANY]),
-  ApplicationController.getApplicantsDetails,
+  JobController.getApplicantDetails,
 );
 
 module.exports = router;

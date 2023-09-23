@@ -1,7 +1,8 @@
 const prisma = require('../lib/prisma');
 const JobService = require('./job');
 const STATUS_APPLICATION = require('../constants/statusApplication');
-const UserService = require('./user');
+const ProfileService = require('./profile');
+const NotFoundError = require('../exceptions/NotFoundError');
 
 class ApplicantService {
   static getApplicantsJob = async ({ jobSlug, page, limit }) => {
@@ -91,70 +92,33 @@ class ApplicantService {
     return rejectedApplicant;
   };
 
-  static getApplicantsDetails = async ({ jobSlug, userSlug }) => {
-    const user = await UserService.getUserIdByProfileSlug(userSlug);
-    // console.log(user,"<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-    // // const profile = await ProfileService.getProfileBySlug(userSlug);
-
-    // delete profile.id;
-    // delete profile.slug;
-    // delete profile.role;
-    // delete profile.isVerifiedEmail;
-    // delete profile.createdAt;
-    // delete profile.updatedAt;
-
+  static getApplicantDetails = async ({ companyId, jobSlug, userSlug }) => {
+    const profileUser = await ProfileService.getProfileBySlug(userSlug);
     const job = await JobService.getBySlug(jobSlug);
 
-    const application = await prisma.applicationList.findFirst({
+    if (job.company.id !== companyId) {
+      throw new NotFoundError('Job not found at your company');
+    }
+
+    const applicant = await prisma.applicationList.findFirst({
       where: {
-        AND: [
-          {
-            userId: user.user.id,
-          },
-          {
-            jobId: job.id,
-          },
-        ],
+        userId: profileUser.user.id,
+        jobId: job.id,
       },
     });
 
-    const applicantDetail = await prisma.applicationList.findUnique({
-      where: {
-        id: application.id,
-      },
-      include: {
-        user: {
-          include: {
-            profile: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                avatar: true,
-                // gender: true,
-                address: true,
-                // phoneNumber: true,
-                // // headline: true,
-                // about: true,
-                // url: true,
-              },
-            },
-            salaryExpectation: {
-              select: {
-                min: true,
-              },
-            },
-            educations: true,
-            skills: true,
-            workExperiencies: {},
-            projects: {},
-            certificates: {},
-          },
-        },
-      },
-    });
+    if (!applicant) {
+      throw new NotFoundError('Applicant not found with this job');
+    }
 
-    console.log(applicantDetail, '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<');
+    const applicantDetail = {
+      ...applicant,
+      profile: profileUser,
+    };
+
+    delete applicantDetail.userId;
+    delete applicantDetail.jobId;
+    delete applicantDetail.profile.user.resume;
 
     return applicantDetail;
   };

@@ -5,10 +5,9 @@ const { getPaginationStatus } = require('../../lib/pagination');
 const STATUS_APPLICATION = require('../../constants/statusApplication');
 const InvariantError = require('../../exceptions/InvariantError');
 const { VALIDATION_ERR } = require('../../constants/errorType');
-const ApplicantService = require('../../services/applicant');
 
 class ApplicationController {
-  static getApplicationController = async (req, res, next) => {
+  static getApplicationUser = async (req, res, next) => {
     try {
       let { status, page, limit } = req.query;
       const { user } = req.user;
@@ -44,28 +43,6 @@ class ApplicationController {
             jobs: applications,
           },
           pagination,
-        }),
-      );
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  static getApplicantsDetails = async (req, res, next) => {
-    try {
-      const { slug: jobSlug, userSlug } = req.params;
-
-      const applicants = await ApplicantService.getApplicantsDetails({
-        jobSlug,
-        userSlug,
-      });
-
-      return res.status(200).json(
-        successResponse({
-          message: 'Success get applicants',
-          data: {
-            applicants,
-          },
         }),
       );
     } catch (error) {

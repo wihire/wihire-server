@@ -125,7 +125,7 @@ class JobController {
 
       return res.status(200).json(
         successResponse({
-          message: 'Retrieved user data successfully',
+          message: 'Get applicants job successfully',
           data: {
             applicants,
           },
@@ -265,6 +265,29 @@ class JobController {
           message: 'Success get job',
           data: {
             job,
+          },
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  static getApplicantDetails = async (req, res, next) => {
+    try {
+      const { slug: jobSlug, userSlug } = req.params;
+
+      const applicant = await ApplicantService.getApplicantDetails({
+        companyId: req.user.company.id,
+        jobSlug,
+        userSlug,
+      });
+
+      return res.status(200).json(
+        successResponse({
+          message: 'Success get applicant',
+          data: {
+            applicant,
           },
         }),
       );
