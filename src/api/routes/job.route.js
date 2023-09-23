@@ -32,5 +32,11 @@ router.post(
   upload('pdf')('single', ['resume']),
   JobController.applyJob,
 );
+router.get(
+  '/:slug/applicants/:userSlug',
+  authentication,
+  authorization([ROLE.COMPANY]),
+  JobController.getApplicantDetails,
+);
 
 module.exports = router;

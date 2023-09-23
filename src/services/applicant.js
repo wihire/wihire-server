@@ -1,6 +1,8 @@
 const prisma = require('../lib/prisma');
 const JobService = require('./job');
 const STATUS_APPLICATION = require('../constants/statusApplication');
+const ProfileService = require('./profile');
+const NotFoundError = require('../exceptions/NotFoundError');
 
 class ApplicantService {
   static getApplicantsJob = async ({ jobSlug, page, limit }) => {
@@ -88,6 +90,37 @@ class ApplicantService {
     });
 
     return rejectedApplicant;
+  };
+
+  static getApplicantDetails = async ({ companyId, jobSlug, userSlug }) => {
+    const profileUser = await ProfileService.getProfileBySlug(userSlug);
+    const job = await JobService.getBySlug(jobSlug);
+
+    if (job.company.id !== companyId) {
+      throw new NotFoundError('Job not found at your company');
+    }
+
+    const applicant = await prisma.applicationList.findFirst({
+      where: {
+        userId: profileUser.user.id,
+        jobId: job.id,
+      },
+    });
+
+    if (!applicant) {
+      throw new NotFoundError('Applicant not found with this job');
+    }
+
+    const applicantDetail = {
+      ...applicant,
+      profile: profileUser,
+    };
+
+    delete applicantDetail.userId;
+    delete applicantDetail.jobId;
+    delete applicantDetail.profile.user.resume;
+
+    return applicantDetail;
   };
 }
 

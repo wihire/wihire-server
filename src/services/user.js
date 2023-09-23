@@ -1,3 +1,4 @@
+const NotFoundError = require('../exceptions/NotFoundError');
 const prisma = require('../lib/prisma');
 
 class UserService {
@@ -10,6 +11,10 @@ class UserService {
         user: true,
       },
     });
+
+    if (!user) {
+      throw new NotFoundError('User not found');
+    }
 
     return user;
   };
