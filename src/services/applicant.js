@@ -1,6 +1,7 @@
 const prisma = require('../lib/prisma');
 const JobService = require('./job');
 const STATUS_APPLICATION = require('../constants/statusApplication');
+const UserService = require('./user');
 
 class ApplicantService {
   static getApplicantsJob = async ({ jobSlug, page, limit }) => {
@@ -88,6 +89,74 @@ class ApplicantService {
     });
 
     return rejectedApplicant;
+  };
+
+  static getApplicantsDetails = async ({ jobSlug, userSlug }) => {
+    const user = await UserService.getUserIdByProfileSlug(userSlug);
+    // console.log(user,"<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+    // // const profile = await ProfileService.getProfileBySlug(userSlug);
+
+    // delete profile.id;
+    // delete profile.slug;
+    // delete profile.role;
+    // delete profile.isVerifiedEmail;
+    // delete profile.createdAt;
+    // delete profile.updatedAt;
+
+    const job = await JobService.getBySlug(jobSlug);
+
+    const application = await prisma.applicationList.findFirst({
+      where: {
+        AND: [
+          {
+            userId: user.user.id,
+          },
+          {
+            jobId: job.id,
+          },
+        ],
+      },
+    });
+
+    const applicantDetail = await prisma.applicationList.findUnique({
+      where: {
+        id: application.id,
+      },
+      include: {
+        user: {
+          include: {
+            profile: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                avatar: true,
+                // gender: true,
+                address: true,
+                // phoneNumber: true,
+                // // headline: true,
+                // about: true,
+                // url: true,
+              },
+            },
+            salaryExpectation: {
+              select: {
+                min: true,
+              },
+            },
+            educations: true,
+            skills: true,
+            workExperiencies: {},
+            projects: {},
+            certificates: {},
+          },
+        },
+      },
+    });
+
+    console.log(applicantDetail, '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<');
+
+    return applicantDetail;
   };
 }
 

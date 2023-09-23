@@ -5,7 +5,6 @@ const { uniqueSlug } = require('../lib/common');
 const FirebaseStorage = require('../lib/firebase/FirebaseStorage');
 const folderStorage = require('../constants/folderStorage');
 const prisma = require('../lib/prisma');
-const ProfileService = require('./profile');
 
 class JobService {
   static create = async (companyId, payload) => {
@@ -401,23 +400,6 @@ class JobService {
     };
 
     return job;
-  };
-
-  static getApplicantsDetails = async ({ jobSlug, userSlug }) => {
-    const profile = await ProfileService.getProfileBySlug(userSlug);
-
-    delete profile.id;
-    delete profile.slug;
-    delete profile.role;
-    delete profile.isVerifiedEmail;
-    delete profile.createdAt;
-    delete profile.updatedAt;
-
-    const job = await JobService.getBySlug(jobSlug);
-
-    console.log(job.id, 'JOB<<<<<<<<<<<<<,');
-
-    return profile;
   };
 }
 
