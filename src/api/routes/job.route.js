@@ -24,7 +24,12 @@ router.put(
 );
 router.get('/:slug', authentication, JobController.getJobDetailBySlug);
 router.delete('/:slug', authentication, authorization([ROLE.COMPANY]), JobController.deleteJob);
-
+router.put(
+  '/:slug/applicants/:userSlug',
+  authentication,
+  authorization([ROLE.COMPANY]),
+  JobController.updateApplicant,
+);
 router.post(
   '/:slug/apply',
   authentication,
