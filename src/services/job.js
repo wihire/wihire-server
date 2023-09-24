@@ -1,6 +1,9 @@
+const { CONFLICT_ERR } = require('../constants/errorType');
 const InvariantError = require('../exceptions/InvariantError');
 const NotFoundError = require('../exceptions/NotFoundError');
 const { uniqueSlug } = require('../lib/common');
+const FirebaseStorage = require('../lib/firebase/FirebaseStorage');
+const folderStorage = require('../constants/folderStorage');
 const prisma = require('../lib/prisma');
 
 class JobService {
@@ -156,6 +159,27 @@ class JobService {
     return totalJob;
   };
 
+  static simpleJobMapping = (job) => {
+    const jobCompanyProfile = job.company.profile;
+    const isSaved = job.savedJobs.length > 0;
+
+    delete job.company;
+    delete job.savedJobs;
+    delete job.companyId;
+    delete job.salaryId;
+    delete job.description;
+    delete job.minimumQualification;
+    delete job.benefits;
+
+    return {
+      ...job,
+      company: {
+        profile: jobCompanyProfile,
+      },
+      isSaved,
+    };
+  };
+
   static getAllJobs = async (userId, filters) => {
     const jobsRaw = await prisma.job.findMany({
       where: {
@@ -187,26 +211,7 @@ class JobService {
       },
     });
 
-    const jobs = jobsRaw.map((job) => {
-      const jobCompanyProfile = job.company.profile;
-      const isSaved = job.savedJobs.length > 0;
-
-      delete job.company;
-      delete job.savedJobs;
-      delete job.companyId;
-      delete job.salaryId;
-      delete job.description;
-      delete job.minimumQualification;
-      delete job.benefits;
-
-      return {
-        ...job,
-        company: {
-          profile: jobCompanyProfile,
-        },
-        isSaved,
-      };
-    });
+    const jobs = jobsRaw.map(this.simpleJobMapping);
 
     return jobs;
   };
@@ -301,6 +306,50 @@ class JobService {
         id: savedJob.id,
       },
     });
+  };
+
+  static applyJob = async ({ jobSlug, userId, file, resumeUrl }) => {
+    const job = await JobService.getBySlug(jobSlug);
+
+    const applicantCheck = await prisma.applicationList.findFirst({
+      where: {
+        user: {
+          id: userId,
+        },
+        job: {
+          id: job.id,
+        },
+      },
+    });
+
+    if (applicantCheck) {
+      throw new InvariantError('Already Apply This Job', { statusCode: 409, type: CONFLICT_ERR });
+    }
+
+    let url = resumeUrl;
+    if (file) {
+      ({ url } = await FirebaseStorage.upload(file, {
+        folder: folderStorage.firebaseStorage.RESUME,
+      }));
+    }
+
+    const applyJob = await prisma.applicationList.create({
+      data: {
+        resume: url,
+        user: {
+          connect: {
+            id: userId,
+          },
+        },
+        job: {
+          connect: {
+            id: job.id,
+          },
+        },
+      },
+    });
+
+    return applyJob;
   };
 
   static deleteJob = async ({ jobSlug, companyId }) => {

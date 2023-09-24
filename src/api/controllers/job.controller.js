@@ -115,7 +115,7 @@ class JobController {
       if (!page || !isNumber(page)) page = 1;
       if (!limit || !isNumber(limit)) limit = 15;
 
-      const applicants = await ApplicantService.getApplicants({
+      const applicants = await ApplicantService.getApplicantsJob({
         jobSlug: slug,
         page: +page,
         limit: +limit,
@@ -126,7 +126,7 @@ class JobController {
 
       return res.status(200).json(
         successResponse({
-          message: 'Retrieved user data successfully',
+          message: 'Get applicants job successfully',
           data: {
             applicants,
           },
@@ -200,6 +200,39 @@ class JobController {
     }
   };
 
+  static applyJob = async (req, res, next) => {
+    try {
+      const { slug: jobSlug } = req.params;
+      const { file: resume } = req;
+
+      if (!resume && !req.body?.resumeUrl) {
+        throw new InvariantError('Resume is required', {
+          type: VALIDATION_ERR,
+        });
+      }
+
+      const jobApplied = await JobService.applyJob({
+        jobSlug,
+        userId: req.user.user.id,
+        file: resume,
+        resumeUrl: req.body?.resumeUrl,
+      });
+
+      return res.status(200).json(
+        successResponse({
+          message: 'Success apply job',
+          data: {
+            job: {
+              id: jobApplied.jobId,
+            },
+          },
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
   static deleteJob = async (req, res, next) => {
     try {
       const { slug: jobSlug } = req.params;
@@ -241,18 +274,45 @@ class JobController {
     }
   };
 
-  static updateApplicants = async (req, res, next) => {
+  static updateApplicant = async (req, res, next) => {
     try {
+      applicantValidation.validateUpdateApplicantPayload(req.body);
+
       const { slug: jobSlug, userSlug } = req.params;
 
-      applicantValidation.validateUpdateApplicantPayload(req.body);
-      const { status } = req.body;
-
-      await ApplicantService.updateStatusApplicant(jobSlug, userSlug, status);
+      await ApplicantService.updateStatusApplicant({
+        companyId: req.user.company.id,
+        jobSlug,
+        userSlug,
+        payload: req.body,
+      });
 
       return res.status(200).json(
         successResponse({
           message: 'Success update job applicant',
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  static getApplicantDetails = async (req, res, next) => {
+    try {
+      const { slug: jobSlug, userSlug } = req.params;
+
+      const applicant = await ApplicantService.getApplicantDetails({
+        companyId: req.user.company.id,
+        jobSlug,
+        userSlug,
+      });
+
+      return res.status(200).json(
+        successResponse({
+          message: 'Success get applicant',
+          data: {
+            applicant,
+          },
         }),
       );
     } catch (error) {

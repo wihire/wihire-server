@@ -2,6 +2,7 @@ const ROLE = require('../../constants/role');
 const JobController = require('../controllers/job.controller');
 const authentication = require('../middlewares/authentication');
 const { authorization } = require('../middlewares/authorization');
+const upload = require('../middlewares/uploadFile');
 
 const router = require('express').Router();
 
@@ -27,7 +28,20 @@ router.put(
   '/:slug/applicants/:userSlug',
   authentication,
   authorization([ROLE.COMPANY]),
-  JobController.updateApplicants,
+  JobController.updateApplicant,
+);
+router.post(
+  '/:slug/apply',
+  authentication,
+  authorization([ROLE.USER]),
+  upload('pdf')('single', ['resume']),
+  JobController.applyJob,
+);
+router.get(
+  '/:slug/applicants/:userSlug',
+  authentication,
+  authorization([ROLE.COMPANY]),
+  JobController.getApplicantDetails,
 );
 
 module.exports = router;

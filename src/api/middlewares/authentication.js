@@ -1,3 +1,4 @@
+const { NOT_FOUND_ERR } = require('../../constants/errorType');
 const ROLE = require('../../constants/role');
 const AuthenticationError = require('../../exceptions/AuthenticationError');
 const { decodeToken } = require('../../lib/tokenManager');
@@ -32,6 +33,10 @@ const authentication = async (req, res, next) => {
 
     next();
   } catch (error) {
+    if (error?.type === NOT_FOUND_ERR) {
+      next(new AuthenticationError());
+    }
+
     next(error);
   }
 };

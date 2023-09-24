@@ -1,3 +1,4 @@
+const NotFoundError = require('../exceptions/NotFoundError');
 const prisma = require('../lib/prisma');
 
 class CompanyService {
@@ -10,6 +11,10 @@ class CompanyService {
         company: true,
       },
     });
+
+    if (!company) {
+      throw new NotFoundError('Company not found');
+    }
 
     return company;
   };
