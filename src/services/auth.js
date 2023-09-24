@@ -75,11 +75,6 @@ class AuthService {
             birthDate: userData.birthDate,
             gender: userData.gender,
             phoneNumber: userData.phoneNumber,
-            salaryExpectation: {
-              create: {
-                min: userData.salaryExpectation,
-              },
-            },
           },
         },
       },

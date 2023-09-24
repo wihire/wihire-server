@@ -7,7 +7,7 @@ exports.login = Joi.object({
 });
 
 exports.register = Joi.object({
-  name: Joi.string().required(),
+  name: Joi.string().min(4).max(255).required(),
   email: Joi.string().email().required(),
   password: Joi.string().min(8).required(),
   confirmPassword: Joi.string()
@@ -24,11 +24,10 @@ exports.register = Joi.object({
   phoneNumber: Joi.string()
     .pattern(/^[0-9]+$/)
     .required(),
-  salaryExpectation: Joi.number().min(100_000).required(),
 });
 
 exports.registerCompany = Joi.object({
-  name: Joi.string().required(),
+  name: Joi.string().min(4).max(255).required(),
   email: Joi.string().email().required(),
   password: Joi.string().min(8).required(),
   confirmPassword: Joi.string()

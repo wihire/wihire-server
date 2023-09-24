@@ -2,7 +2,7 @@ const ROLE = require('../../constants/role');
 const JobController = require('../controllers/job.controller');
 const authentication = require('../middlewares/authentication');
 const { authorization } = require('../middlewares/authorization');
-const upload = require('../middlewares/uploadFile');
+const { upload } = require('../middlewares/uploadFile');
 
 const router = require('express').Router();
 
@@ -24,7 +24,6 @@ router.put(
 );
 router.get('/:slug', authentication, JobController.getJobDetailBySlug);
 router.delete('/:slug', authentication, authorization([ROLE.COMPANY]), JobController.deleteJob);
-
 router.post(
   '/:slug/apply',
   authentication,
