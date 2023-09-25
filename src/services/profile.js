@@ -17,7 +17,11 @@ class ProfileService {
                 startDate: 'desc',
               },
             },
-            skills: true,
+            skills: {
+              include: {
+                skill: true,
+              },
+            },
             workExperiencies: {
               orderBy: {
                 startDate: 'desc',

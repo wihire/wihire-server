@@ -1,0 +1,7 @@
+const SKILL_LEVEL = {
+  BEGINNER: 'BEGINNER',
+  INTERMEDIATE: 'INTERMEDIATE',
+  EXPERT: 'EXPERT',
+};
+
+module.exports = SKILL_LEVEL;
