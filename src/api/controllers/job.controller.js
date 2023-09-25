@@ -10,6 +10,7 @@ const InvariantError = require('../../exceptions/InvariantError');
 const { VALIDATION_ERR } = require('../../constants/errorType');
 const PLACE_METHOD = require('../../constants/pladeMethod');
 const JOB_STATUS = require('../../constants/jobStatus');
+const ROLE = require('../../constants/role');
 
 class JobController {
   static createJob = async (req, res, next) => {
@@ -137,6 +138,7 @@ class JobController {
 
       const applicants = await ApplicantService.getApplicantsJob({
         jobSlug: slug,
+        companyId: req.user.company.id,
         page: +page,
         limit: +limit,
       });
@@ -204,8 +206,10 @@ class JobController {
 
   static rejectAllApplicant = async (req, res, next) => {
     const { slug } = req.params;
+    const companyId = req.user.company.id;
+
     try {
-      const rejectedApplicant = await ApplicantService.rejectAllApplicants(slug);
+      const rejectedApplicant = await ApplicantService.rejectAllApplicants(slug, companyId);
 
       return res.status(200).json(
         successResponse({
@@ -278,7 +282,7 @@ class JobController {
 
       const job = await JobService.getJobDetailBySlug({
         jobSlug: slug,
-        userId: req.user.user.id,
+        userId: req.user.role === ROLE.USER ? req.user.user.id : req.user.company.id,
       });
 
       return res.status(200).json(

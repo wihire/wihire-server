@@ -6,8 +6,12 @@ const ProfileService = require('./profile');
 const ROLE = require('../constants/role');
 
 class ApplicantService {
-  static getApplicantsJob = async ({ jobSlug, page, limit }) => {
+  static getApplicantsJob = async ({ jobSlug, companyId, page, limit }) => {
     const job = await JobService.getBySlug(jobSlug);
+
+    if (job.company.id !== companyId) {
+      throw new NotFoundError('Job not found at your company');
+    }
 
     const applicationsJobRaw = await prisma.applicationList.findMany({
       where: {
@@ -66,8 +70,12 @@ class ApplicantService {
     return applicationsJob;
   };
 
-  static rejectAllApplicants = async (jobSlug) => {
+  static rejectAllApplicants = async (jobSlug, companyId) => {
     const job = await JobService.getBySlug(jobSlug);
+
+    if (job.company.id !== companyId) {
+      throw new NotFoundError('Job not found at your company');
+    }
 
     const rejectedApplicant = await prisma.applicationList.updateMany({
       where: {
