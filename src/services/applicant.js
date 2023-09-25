@@ -1,15 +1,13 @@
 const prisma = require('../lib/prisma');
-const NotFoundError = require('../exceptions/NotFoundError');
 const JobService = require('./job');
 const STATUS_APPLICATION = require('../constants/statusApplication');
+const NotFoundError = require('../exceptions/NotFoundError');
+const ProfileService = require('./profile');
+const ROLE = require('../constants/role');
 
 class ApplicantService {
-  static getApplicants = async ({ jobSlug, page, limit }) => {
+  static getApplicantsJob = async ({ jobSlug, page, limit }) => {
     const job = await JobService.getBySlug(jobSlug);
-
-    if (!job) {
-      throw new NotFoundError('Job not found');
-    }
 
     const applicationsJobRaw = await prisma.applicationList.findMany({
       where: {
@@ -59,10 +57,6 @@ class ApplicantService {
   static getApplicantTotal = async (jobSlug) => {
     const job = await JobService.getBySlug(jobSlug);
 
-    if (!job) {
-      throw new NotFoundError('Job not found');
-    }
-
     const applicationsJob = await prisma.applicationList.count({
       where: {
         jobId: job.id,
@@ -74,10 +68,6 @@ class ApplicantService {
 
   static rejectAllApplicants = async (jobSlug) => {
     const job = await JobService.getBySlug(jobSlug);
-
-    if (!job) {
-      throw new NotFoundError('Job not found');
-    }
 
     const rejectedApplicant = await prisma.applicationList.updateMany({
       where: {
@@ -101,6 +91,66 @@ class ApplicantService {
     });
 
     return rejectedApplicant;
+  };
+
+  static updateStatusApplicant = async ({ companyId, jobSlug, userSlug, payload }) => {
+    const profileUser = await ProfileService.getProfileBySlug(userSlug);
+    const job = await JobService.getBySlug(jobSlug);
+
+    if (profileUser.role === ROLE.COMPANY) {
+      throw new NotFoundError('Application not found at this job');
+    }
+
+    if (job.company.id !== companyId) {
+      throw new NotFoundError('Job not found at your company');
+    }
+
+    const updatedApplication = await prisma.applicationList.updateMany({
+      where: {
+        userId: profileUser.user.id,
+        jobId: job.id,
+      },
+      data: payload,
+    });
+
+    if (updatedApplication.count < 1) {
+      throw new NotFoundError('Application not found at this job');
+    }
+  };
+
+  static getApplicantDetails = async ({ companyId, jobSlug, userSlug }) => {
+    const profileUser = await ProfileService.getProfileBySlug(userSlug);
+    const job = await JobService.getBySlug(jobSlug);
+
+    if (profileUser.role === ROLE.COMPANY) {
+      throw new NotFoundError('Application not found at this job');
+    }
+
+    if (job.company.id !== companyId) {
+      throw new NotFoundError('Job not found at your company');
+    }
+
+    const applicant = await prisma.applicationList.findFirst({
+      where: {
+        userId: profileUser.user.id,
+        jobId: job.id,
+      },
+    });
+
+    if (!applicant) {
+      throw new NotFoundError('Applicant not found at this job');
+    }
+
+    const applicantDetail = {
+      ...applicant,
+      profile: profileUser,
+    };
+
+    delete applicantDetail.userId;
+    delete applicantDetail.jobId;
+    delete applicantDetail.profile.user.resume;
+
+    return applicantDetail;
   };
 }
 

@@ -1,6 +1,9 @@
+const { CONFLICT_ERR } = require('../constants/errorType');
 const InvariantError = require('../exceptions/InvariantError');
 const NotFoundError = require('../exceptions/NotFoundError');
 const { uniqueSlug } = require('../lib/common');
+const FirebaseStorage = require('../lib/firebase/FirebaseStorage');
+const folderStorage = require('../constants/folderStorage');
 const prisma = require('../lib/prisma');
 
 class JobService {
@@ -47,16 +50,20 @@ class JobService {
           title: payload.title,
           province: payload.province,
           address: payload.address,
-          description: payload.description,
-          minimumQualification: payload.minimumQualification,
-          benefit: payload.benefit,
-          status: payload.status,
-          rangeSalary: {
-            create: {
-              min: payload.minimalSalary,
-              max: payload.maximalSalary,
-            },
-          },
+          description: payload?.description,
+          minimumQualification: payload?.minimumQualification,
+          benefits: payload?.benefits,
+          status: payload?.status,
+          ...(payload?.minimalSalary
+            ? {
+                rangeSalary: {
+                  create: {
+                    min: payload.minimalSalary,
+                    max: payload?.maximalSalary,
+                  },
+                },
+              }
+            : {}),
         },
       });
 
@@ -80,31 +87,25 @@ class JobService {
 
   static update = async (jobSlug, payload) => {
     return await prisma.$transaction(async (tx) => {
-      const jobSkill = await tx.job.findFirst({
+      const job = await tx.job.findFirst({
         where: {
           slug: jobSlug,
         },
       });
 
-      const jobCategories = await tx.job.findFirst({
-        where: {
-          slug: jobSlug,
-        },
-      });
+      if (!job) {
+        throw new NotFoundError('Job not found');
+      }
 
       await tx.jobSkill.deleteMany({
         where: {
-          jobId: {
-            contains: jobSkill.id,
-          },
+          jobId: job.id,
         },
       });
 
       await tx.jobCategory.deleteMany({
         where: {
-          jobId: {
-            contains: jobCategories.id,
-          },
+          jobId: job.id,
         },
       });
 
@@ -136,97 +137,213 @@ class JobService {
         }),
       );
 
-      const salaary = await tx.job.findFirst({
+      console.log(job);
+      const jobHasRangeSalary = job?.salaryId;
+      const deleteRangeSalary = jobHasRangeSalary && !payload?.minimalSalary;
+      let salaryQuery = {};
+      if (deleteRangeSalary) {
+        salaryQuery = {
+          rangeSalary: {
+            disconnect: true,
+          },
+        };
+      } else if (!jobHasRangeSalary && payload?.minimalSalary) {
+        salaryQuery = {
+          rangeSalary: {
+            create: {
+              min: payload.minimalSalary,
+              max: payload?.maximalSalary,
+            },
+          },
+        };
+      } else if (jobHasRangeSalary && payload?.minimalSalary) {
+        salaryQuery = {
+          rangeSalary: {
+            update: {
+              min: payload.minimalSalary,
+              max: payload?.maximalSalary ?? null,
+            },
+          },
+        };
+      }
+
+      const updateJob = await tx.job.update({
         where: {
           slug: jobSlug,
         },
+        data: {
+          placeMethod: payload.placeMethod,
+          jobType: payload.jobType,
+          title: payload.title,
+          province: payload.province,
+          address: payload.address,
+          description: payload?.description ?? null,
+          minimumQualification: payload?.minimumQualification ?? null,
+          benefits: payload?.benefits ?? null,
+          status: payload?.status ?? null,
+          ...salaryQuery,
+        },
       });
 
-      if (!salaary.salaryId) {
-        const updateJob = await tx.job.update({
+      if (deleteRangeSalary) {
+        await tx.salary.delete({
           where: {
-            slug: jobSlug,
+            id: job.salaryId,
           },
-          data: {
-            placeMethod: payload.placeMethod,
-            jobType: payload.jobType,
-            title: payload.title,
-            province: payload.province,
-            address: payload.address,
-            description: payload.description,
-            minimumQualification: payload.minimumQualification,
-            benefit: payload.benefit,
-            status: payload.status,
+        });
+      }
+
+      await tx.jobSkill.createMany({
+        data: skills.map((skill) => ({
+          skillId: skill.id,
+          jobId: updateJob.id,
+        })),
+      });
+
+      await tx.jobCategory.createMany({
+        data: categories.map((category) => ({
+          categoryId: category.id,
+          jobId: updateJob.id,
+        })),
+      });
+
+      return updateJob;
+    });
+  };
+
+  static #getJobsFilter = (userId, filters) => {
+    return {
+      title: {
+        contains: filters?.title,
+        mode: 'insensitive',
+      },
+      company: {
+        profile: {
+          name: {
+            contains: filters?.company,
+            mode: 'insensitive',
+          },
+        },
+      },
+      categories: {
+        some: {
+          category: {
+            OR: filters?.categories?.map((category) => ({
+              title: {
+                contains: category,
+                mode: 'insensitive',
+              },
+            })),
+          },
+        },
+      },
+      skills: {
+        some: {
+          skill: {
+            OR: filters?.skills?.map((skill) => ({
+              title: {
+                contains: skill,
+                mode: 'insensitive',
+              },
+            })),
+          },
+        },
+      },
+      status: {
+        equals: filters?.status,
+      },
+      ...(filters?.['min-salary']
+        ? {
             rangeSalary: {
-              create: {
-                min: payload.minimalSalary,
-                max: payload.maximalSalary,
+              min: {
+                gte: +filters['min-salary'],
+              },
+            },
+          }
+        : {}),
+      jobType: {
+        in: filters?.['job-types'],
+      },
+      placeMethod: {
+        in: filters?.['place-methods'],
+      },
+      ...((filters?.['is-saved'] === 'true') | (filters?.['is-saved'] === 'false')
+        ? {
+            savedJobs: {
+              ...(filters?.['is-saved'] === 'true' ? { some: { userId } } : {}),
+              ...(filters?.['is-saved'] === 'false' ? { none: { userId } } : {}),
+            },
+          }
+        : {}),
+    };
+  };
+
+  static getJobTotal = async (userId, filters) => {
+    console.log(JobService.#getJobsFilter(filters));
+    const totalJob = await prisma.job.count({
+      where: {
+        ...JobService.#getJobsFilter(userId, filters),
+      },
+    });
+
+    return totalJob;
+  };
+
+  static simpleJobMapping = (job) => {
+    const jobCompanyProfile = job.company.profile;
+    const isSaved = job.savedJobs.length > 0;
+
+    delete job.company;
+    delete job.savedJobs;
+    delete job.companyId;
+    delete job.salaryId;
+    delete job.description;
+    delete job.minimumQualification;
+    delete job.benefits;
+
+    return {
+      ...job,
+      company: {
+        profile: jobCompanyProfile,
+      },
+      isSaved,
+    };
+  };
+
+  static getAllJobs = async (userId, filters) => {
+    const jobsRaw = await prisma.job.findMany({
+      where: {
+        ...JobService.#getJobsFilter(userId, filters),
+      },
+      skip: (filters.page - 1) * filters.limit,
+      take: filters.limit,
+      include: {
+        company: {
+          include: {
+            profile: {
+              select: {
+                slug: true,
+                name: true,
+                email: true,
+                avatar: true,
               },
             },
           },
-        });
-
-        await tx.jobSkill.createMany({
-          data: skills.map((skill) => ({
-            skillId: skill.id,
-            jobId: updateJob.id,
-          })),
-        });
-
-        await tx.jobCategory.createMany({
-          data: categories.map((category) => ({
-            categoryId: category.id,
-            jobId: updateJob.id,
-          })),
-        });
-
-        return updateJob;
-      } else {
-        await tx.salary.update({
+        },
+        rangeSalary: true,
+        savedJobs: {
           where: {
-            id: salaary.salaryId,
+            userId: {
+              equals: userId,
+            },
           },
-
-          data: {
-            min: payload.minimalSalary,
-            max: payload.maximalSalary,
-          },
-        });
-
-        const updateJob = await tx.job.update({
-          where: {
-            slug: jobSlug,
-          },
-          data: {
-            placeMethod: payload.placeMethod,
-            jobType: payload.jobType,
-            title: payload.title,
-            province: payload.province,
-            address: payload.address,
-            description: payload.description,
-            minimumQualification: payload.minimumQualification,
-            benefit: payload.benefit,
-            status: payload.status,
-          },
-        });
-
-        await tx.jobSkill.createMany({
-          data: skills.map((skill) => ({
-            skillId: skill.id,
-            jobId: updateJob.id,
-          })),
-        });
-
-        await tx.jobCategory.createMany({
-          data: categories.map((category) => ({
-            categoryId: category.id,
-            jobId: updateJob.id,
-          })),
-        });
-
-        return updateJob;
-      }
+        },
+      },
     });
+
+    const jobs = jobsRaw.map(this.simpleJobMapping);
+
+    return jobs;
   };
 
   static getSavedJob = async ({ jobId, userId }) => {
@@ -246,26 +363,42 @@ class JobService {
         slug,
       },
       include: {
-        company: true,
-        jobCategories: true,
-        salary: true,
-        jobSkills: true,
-      },
-    });
-
-    return job;
-  };
-
-  static saveJob = async ({ jobSlug, userId }) => {
-    const job = await prisma.job.findUnique({
-      where: {
-        slug: jobSlug,
+        company: {
+          include: {
+            profile: {
+              select: {
+                id: true,
+                slug: true,
+                name: true,
+                email: true,
+                avatar: true,
+              },
+            },
+          },
+        },
+        rangeSalary: true,
+        skills: {
+          include: {
+            skill: true,
+          },
+        },
+        categories: {
+          include: {
+            category: true,
+          },
+        },
       },
     });
 
     if (!job) {
       throw new NotFoundError('Job not found');
     }
+
+    return job;
+  };
+
+  static saveJob = async ({ jobSlug, userId }) => {
+    const job = await JobService.getBySlug(jobSlug);
 
     const savedJob = await JobService.getSavedJob({
       jobId: job.id,
@@ -287,15 +420,7 @@ class JobService {
   };
 
   static unsaveJob = async ({ jobSlug, userId }) => {
-    const job = await prisma.job.findUnique({
-      where: {
-        slug: jobSlug,
-      },
-    });
-
-    if (!job) {
-      throw new NotFoundError('Job not found');
-    }
+    const job = await JobService.getBySlug(jobSlug);
 
     const savedJob = await JobService.getSavedJob({
       jobId: job.id,
@@ -311,6 +436,100 @@ class JobService {
         id: savedJob.id,
       },
     });
+  };
+
+  static applyJob = async ({ jobSlug, userId, file, resumeUrl }) => {
+    const job = await JobService.getBySlug(jobSlug);
+
+    const applicantCheck = await prisma.applicationList.findFirst({
+      where: {
+        user: {
+          id: userId,
+        },
+        job: {
+          id: job.id,
+        },
+      },
+    });
+
+    if (applicantCheck) {
+      throw new InvariantError('Already Apply This Job', { statusCode: 409, type: CONFLICT_ERR });
+    }
+
+    let url = resumeUrl;
+    if (file) {
+      ({ url } = await FirebaseStorage.upload(file, {
+        folder: folderStorage.firebaseStorage.RESUME,
+      }));
+    }
+
+    const applyJob = await prisma.applicationList.create({
+      data: {
+        resume: url,
+        user: {
+          connect: {
+            id: userId,
+          },
+        },
+        job: {
+          connect: {
+            id: job.id,
+          },
+        },
+      },
+    });
+
+    return applyJob;
+  };
+
+  static deleteJob = async ({ jobSlug, companyId }) => {
+    const job = await prisma.job.findFirst({
+      where: {
+        slug: jobSlug,
+        companyId,
+      },
+    });
+
+    if (!job) {
+      throw new NotFoundError('Job not found at your company');
+    }
+
+    await prisma.job.delete({
+      where: {
+        slug: jobSlug,
+        companyId,
+      },
+    });
+  };
+
+  static getJobDetailBySlug = async ({ jobSlug, userId }) => {
+    const jobRaw = await JobService.getBySlug(jobSlug);
+    const savedJob = await JobService.getSavedJob({
+      jobId: jobRaw.id,
+      userId,
+    });
+
+    const jobCompanyProfile = jobRaw.company.profile;
+    const jobSkills = jobRaw.skills.map((skill) => skill.skill.title);
+    const jobCategories = jobRaw.categories.map((category) => category.category.title);
+
+    delete jobRaw.company;
+    delete jobRaw.companyId;
+    delete jobRaw.salaryId;
+    delete jobRaw.skills;
+    delete jobRaw.categories;
+
+    const job = {
+      ...jobRaw,
+      company: {
+        profile: jobCompanyProfile,
+      },
+      skills: jobSkills,
+      categories: jobCategories,
+      isSaved: !!savedJob,
+    };
+
+    return job;
   };
 }
 

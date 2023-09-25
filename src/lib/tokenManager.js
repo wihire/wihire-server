@@ -10,7 +10,7 @@ exports.decodeToken = (token, secretKey) =>
   new Promise((resolve, reject) => {
     jwt.verify(token, secretKey, (error, decoded) => {
       if (error) {
-        if (error.message === 'jwt malformed') {
+        if (error.message === 'jwt malformed' || error.message === 'invalid signature') {
           reject(
             new InvariantError(TOKEN_INVALID_ERR_MSG, {
               type: TOKEN_ERR,
@@ -53,4 +53,16 @@ exports.generateVerifyEmailToken = ({ id, email }) => {
   });
 
   return verifyEmailToken;
+};
+
+exports.generateForgotPasswordToken = (payload) => {
+  const forgotPasswordToken = this.createToken({
+    payload,
+    secret: process.env.VERIFY_FORGOT_PASSWORD_TOKEN_SECRET_KEY,
+    options: {
+      expiresIn: '5m',
+    },
+  });
+
+  return forgotPasswordToken;
 };

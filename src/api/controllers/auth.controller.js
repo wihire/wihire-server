@@ -63,6 +63,22 @@ class AuthController {
     }
   };
 
+  static forgotPassword = async (req, res, next) => {
+    try {
+      authValidation.validateForgotPasswordPayload(req.body);
+
+      await AuthService.forgotPassword(req.body);
+
+      return res.status(200).json(
+        successResponse({
+          message: 'Success send email forgot password',
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
   static verificationEmail = async (req, res, next) => {
     try {
       authValidation.validateVerificationEmailPayload(req.body);
@@ -72,6 +88,22 @@ class AuthController {
       return res.status(200).json(
         successResponse({
           message: 'Success send email verification',
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  static forgotChangePassword = async (req, res, next) => {
+    try {
+      authValidation.validateForgotChangePasswordPayload(req.body);
+
+      await AuthService.forgotChangePassword(req.body);
+
+      return res.status(200).json(
+        successResponse({
+          message: 'Success change password',
         }),
       );
     } catch (error) {
