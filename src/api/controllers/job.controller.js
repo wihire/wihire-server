@@ -206,8 +206,10 @@ class JobController {
 
   static rejectAllApplicant = async (req, res, next) => {
     const { slug } = req.params;
+    const companyId = req.user.company.id;
+
     try {
-      const rejectedApplicant = await ApplicantService.rejectAllApplicants(slug);
+      const rejectedApplicant = await ApplicantService.rejectAllApplicants(slug, companyId);
 
       return res.status(200).json(
         successResponse({

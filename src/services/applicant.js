@@ -70,8 +70,12 @@ class ApplicantService {
     return applicationsJob;
   };
 
-  static rejectAllApplicants = async (jobSlug) => {
+  static rejectAllApplicants = async (jobSlug, companyId) => {
     const job = await JobService.getBySlug(jobSlug);
+
+    if (job.company.id !== companyId) {
+      throw new NotFoundError('Job not found at your company');
+    }
 
     const rejectedApplicant = await prisma.applicationList.updateMany({
       where: {
