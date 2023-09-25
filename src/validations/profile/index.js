@@ -6,6 +6,7 @@ const {
   updateBasicProfileUser,
   updateSalaryExpectationProfileUser,
   updateResumeProfileUser,
+  updateBasicProfileCompany,
 } = require('./schema');
 
 const profileValidation = {
@@ -38,6 +39,15 @@ const profileValidation = {
   },
   validateUpdateResumeProfileUserPayload: (payload) => {
     const validationResult = updateResumeProfileUser.validate(payload);
+
+    if (validationResult.error) {
+      throw new InvariantError(validationResult.error.message, {
+        type: VALIDATION_ERR,
+      });
+    }
+  },
+  validateUpdateBasicProfileCompanyPayload: (payload) => {
+    const validationResult = updateBasicProfileCompany.validate(payload);
 
     if (validationResult.error) {
       throw new InvariantError(validationResult.error.message, {

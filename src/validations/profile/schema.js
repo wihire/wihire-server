@@ -1,16 +1,17 @@
 const Joi = require('joi');
 const GENDER = require('../../constants/gender');
 
-exports.updateProfileCompany = Joi.object({
-  name: Joi.string().min(4).max(255),
-  email: Joi.string().email(),
-  province: Joi.string(),
-  address: Joi.string(),
-  companyScope: Joi.string(),
-  totalEmployee: Joi.string(),
+exports.updateBasicProfileCompany = Joi.object({
+  name: Joi.string().min(4).max(255).required(),
+  email: Joi.string().email().required(),
+  province: Joi.string().required(),
+  address: Joi.string().required(),
+  companyScope: Joi.string().required(),
+  totalEmployee: Joi.string().required(),
   headline: Joi.string().max(255),
   about: Joi.string(),
   websiteLink: Joi.string().uri(),
+  deleteAvatar: Joi.boolean(),
 });
 
 exports.updateBasicProfileUser = Joi.object({

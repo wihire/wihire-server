@@ -10,6 +10,7 @@ const WorkExperienceController = require('../controllers/workExperience.controll
 const ProjectController = require('../controllers/project.controller');
 const CertificateController = require('../controllers/certificate.controller');
 const SkillController = require('../controllers/skill.controller');
+const CompanyController = require('../controllers/company.controller');
 
 router.get('/:userSlug', authentication, ProfileController.getBySlug);
 router.put(
@@ -171,6 +172,14 @@ router.delete(
   authentication,
   authorization([ROLE.USER]),
   SkillController.deleteSkill,
+);
+
+router.put(
+  '/company/basic',
+  authentication,
+  authorization([ROLE.COMPANY]),
+  upload('image')('single', ['avatar']),
+  CompanyController.editBasic,
 );
 
 module.exports = router;
