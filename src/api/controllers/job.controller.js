@@ -10,6 +10,7 @@ const InvariantError = require('../../exceptions/InvariantError');
 const { VALIDATION_ERR } = require('../../constants/errorType');
 const PLACE_METHOD = require('../../constants/pladeMethod');
 const JOB_STATUS = require('../../constants/jobStatus');
+const ROLE = require('../../constants/role');
 
 class JobController {
   static createJob = async (req, res, next) => {
@@ -278,7 +279,7 @@ class JobController {
 
       const job = await JobService.getJobDetailBySlug({
         jobSlug: slug,
-        userId: req.user.user.id,
+        userId: req.user.role === ROLE.USER ? req.user.user.id : req.user.company.id,
       });
 
       return res.status(200).json(
