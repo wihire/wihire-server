@@ -138,6 +138,7 @@ class JobController {
 
       const applicants = await ApplicantService.getApplicantsJob({
         jobSlug: slug,
+        companyId: req.user.company.id,
         page: +page,
         limit: +limit,
       });
