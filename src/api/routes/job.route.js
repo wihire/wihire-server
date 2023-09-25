@@ -24,12 +24,24 @@ router.put(
 );
 router.get('/:slug', authentication, JobController.getJobDetailBySlug);
 router.delete('/:slug', authentication, authorization([ROLE.COMPANY]), JobController.deleteJob);
+router.put(
+  '/:slug/applicants/:userSlug',
+  authentication,
+  authorization([ROLE.COMPANY]),
+  JobController.updateApplicant,
+);
 router.post(
   '/:slug/apply',
   authentication,
   authorization([ROLE.USER]),
   upload('pdf')('single', ['resume']),
   JobController.applyJob,
+);
+router.get(
+  '/:slug/applicants/:userSlug',
+  authentication,
+  authorization([ROLE.COMPANY]),
+  JobController.getApplicantDetails,
 );
 
 module.exports = router;

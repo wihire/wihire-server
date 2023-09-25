@@ -4,6 +4,7 @@ const ApplicantService = require('../../services/applicant');
 const { isNumber } = require('../../lib/common');
 const JobService = require('../../services/job');
 const jobValidation = require('../../validations/job');
+const applicantValidation = require('../../validations/applicant');
 const JOB_TYPE = require('../../constants/jobType');
 const InvariantError = require('../../exceptions/InvariantError');
 const { VALIDATION_ERR } = require('../../constants/errorType');
@@ -125,7 +126,7 @@ class JobController {
 
       return res.status(200).json(
         successResponse({
-          message: 'Retrieved user data successfully',
+          message: 'Get applicants job successfully',
           data: {
             applicants,
           },
@@ -265,6 +266,52 @@ class JobController {
           message: 'Success get job',
           data: {
             job,
+          },
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  static updateApplicant = async (req, res, next) => {
+    try {
+      applicantValidation.validateUpdateApplicantPayload(req.body);
+
+      const { slug: jobSlug, userSlug } = req.params;
+
+      await ApplicantService.updateStatusApplicant({
+        companyId: req.user.company.id,
+        jobSlug,
+        userSlug,
+        payload: req.body,
+      });
+
+      return res.status(200).json(
+        successResponse({
+          message: 'Success update job applicant',
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  static getApplicantDetails = async (req, res, next) => {
+    try {
+      const { slug: jobSlug, userSlug } = req.params;
+
+      const applicant = await ApplicantService.getApplicantDetails({
+        companyId: req.user.company.id,
+        jobSlug,
+        userSlug,
+      });
+
+      return res.status(200).json(
+        successResponse({
+          message: 'Success get applicant',
+          data: {
+            applicant,
           },
         }),
       );

@@ -18,6 +18,10 @@ class CompanyService {
       },
     });
 
+    if (!company) {
+      throw new NotFoundError('Company not found');
+    }
+
     return company;
   };
 

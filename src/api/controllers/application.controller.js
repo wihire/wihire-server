@@ -7,7 +7,7 @@ const InvariantError = require('../../exceptions/InvariantError');
 const { VALIDATION_ERR } = require('../../constants/errorType');
 
 class ApplicationController {
-  static getApplicationController = async (req, res, next) => {
+  static getApplicationUser = async (req, res, next) => {
     try {
       let { status, page, limit } = req.query;
       const { user } = req.user;

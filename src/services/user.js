@@ -1,3 +1,4 @@
+const NotFoundError = require('../exceptions/NotFoundError');
 const prisma = require('../lib/prisma');
 const CloudinaryStorage = require('../lib/cloudinary/CloudinaryStorage');
 const FirebaseStorage = require('../lib/firebase/FirebaseStorage');
@@ -17,6 +18,10 @@ class UserService {
         user: true,
       },
     });
+
+    if (!user) {
+      throw new NotFoundError('User not found');
+    }
 
     return user;
   };

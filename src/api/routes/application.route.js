@@ -9,7 +9,7 @@ router.get(
   '/',
   authentication,
   authorization([ROLE.USER]),
-  ApplicationController.getApplicationController,
+  ApplicationController.getApplicationUser,
 );
 
 module.exports = router;
