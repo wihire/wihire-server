@@ -50,16 +50,20 @@ class JobService {
           title: payload.title,
           province: payload.province,
           address: payload.address,
-          description: payload.description,
-          minimumQualification: payload.minimumQualification,
-          benefit: payload.benefit,
-          status: payload.status,
-          rangeSalary: {
-            create: {
-              min: payload.minimalSalary,
-              max: payload.maximalSalary,
-            },
-          },
+          description: payload?.description,
+          minimumQualification: payload?.minimumQualification,
+          benefits: payload?.benefits,
+          status: payload?.status,
+          ...(payload?.minimalSalary
+            ? {
+                rangeSalary: {
+                  create: {
+                    min: payload.minimalSalary,
+                    max: payload?.maximalSalary,
+                  },
+                },
+              }
+            : {}),
         },
       });
 
@@ -78,6 +82,132 @@ class JobService {
       });
 
       return newJob;
+    });
+  };
+
+  static update = async (jobSlug, payload) => {
+    return await prisma.$transaction(async (tx) => {
+      const job = await tx.job.findFirst({
+        where: {
+          slug: jobSlug,
+        },
+      });
+
+      if (!job) {
+        throw new NotFoundError('Job not found');
+      }
+
+      await tx.jobSkill.deleteMany({
+        where: {
+          jobId: job.id,
+        },
+      });
+
+      await tx.jobCategory.deleteMany({
+        where: {
+          jobId: job.id,
+        },
+      });
+
+      const skills = await Promise.all(
+        payload.skills.map(async (skill) => {
+          return await tx.skill.upsert({
+            where: {
+              title: skill,
+            },
+            update: {},
+            create: {
+              title: skill,
+            },
+          });
+        }),
+      );
+
+      const categories = await Promise.all(
+        payload.categories.map(async (category) => {
+          return await tx.category.upsert({
+            where: {
+              title: category,
+            },
+            update: {},
+            create: {
+              title: category,
+            },
+          });
+        }),
+      );
+
+      console.log(job);
+      const jobHasRangeSalary = job?.salaryId;
+      const deleteRangeSalary = jobHasRangeSalary && !payload?.minimalSalary;
+      let salaryQuery = {};
+      if (deleteRangeSalary) {
+        salaryQuery = {
+          rangeSalary: {
+            disconnect: true,
+          },
+        };
+      } else if (!jobHasRangeSalary && payload?.minimalSalary) {
+        salaryQuery = {
+          rangeSalary: {
+            create: {
+              min: payload.minimalSalary,
+              max: payload?.maximalSalary,
+            },
+          },
+        };
+      } else if (jobHasRangeSalary && payload?.minimalSalary) {
+        salaryQuery = {
+          rangeSalary: {
+            update: {
+              min: payload.minimalSalary,
+              max: payload?.maximalSalary ?? null,
+            },
+          },
+        };
+      }
+
+      const updateJob = await tx.job.update({
+        where: {
+          slug: jobSlug,
+        },
+        data: {
+          placeMethod: payload.placeMethod,
+          jobType: payload.jobType,
+          title: payload.title,
+          province: payload.province,
+          address: payload.address,
+          description: payload?.description ?? null,
+          minimumQualification: payload?.minimumQualification ?? null,
+          benefits: payload?.benefits ?? null,
+          status: payload?.status ?? null,
+          ...salaryQuery,
+        },
+      });
+
+      if (deleteRangeSalary) {
+        await tx.salary.delete({
+          where: {
+            id: job.salaryId,
+          },
+        });
+      }
+
+      await tx.jobSkill.createMany({
+        data: skills.map((skill) => ({
+          skillId: skill.id,
+          jobId: updateJob.id,
+        })),
+      });
+
+      await tx.jobCategory.createMany({
+        data: categories.map((category) => ({
+          categoryId: category.id,
+          jobId: updateJob.id,
+        })),
+      });
+
+      return updateJob;
     });
   };
 
