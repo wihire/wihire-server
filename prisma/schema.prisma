@@ -84,15 +84,15 @@ model User {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @default(now())
 
-  profile             Profile  @relation(fields: [profileId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  salaryExpectation   Salary?   @relation(fields: [salaryExpectationId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  projects            UserProject[]
-  educations          UserEducation[]
-  workExperiencies    UserWorkExperience[]
-  certificates        UserCertificate[]
-  skills              UserSkill[]
-  savedJobs           SavedJob[]
-  applicants          ApplicationList[]
+  profile           Profile              @relation(fields: [profileId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  salaryExpectation Salary?              @relation(fields: [salaryExpectationId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  projects          UserProject[]
+  educations        UserEducation[]
+  workExperiencies  UserWorkExperience[]
+  certificates      UserCertificate[]
+  skills            UserSkill[]
+  savedJobs         SavedJob[]
+  applicants        ApplicationList[]
 }
 
 model Company {
@@ -106,10 +106,10 @@ model Company {
   createdAt              DateTime @default(now())
   updatedAt              DateTime @default(now())
 
-  totalEmployee          CompanyTotalEmployee @relation(fields: [companyTotalEmployeeId], references: [id])
-  companyScope           CompanyScope         @relation(fields: [companyScopeid], references: [id])
-  profile                Profile              @relation(fields: [profileId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  jobs                   Job[]
+  totalEmployee CompanyTotalEmployee @relation(fields: [companyTotalEmployeeId], references: [id])
+  companyScope  CompanyScope         @relation(fields: [companyScopeid], references: [id])
+  profile       Profile              @relation(fields: [profileId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  jobs          Job[]
 }
 
 model CompanyTotalEmployee {
@@ -261,12 +261,12 @@ model Job {
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @default(now())
 
-  company              Company           @relation(fields: [companyId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  rangeSalary          Salary?           @relation(fields: [salaryId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  skills               JobSkill[]
-  savedJobs            SavedJob[]
-  applicants           ApplicationList[]
-  categories           JobCategory[]
+  company     Company           @relation(fields: [companyId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  rangeSalary Salary?           @relation(fields: [salaryId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  skills      JobSkill[]
+  savedJobs   SavedJob[]
+  applicants  ApplicationList[]
+  categories  JobCategory[]
 }
 
 model Category {
@@ -279,11 +279,11 @@ model Category {
 }
 
 model JobCategory {
-  id           String   @id @unique @default(uuid())
-  categoryId   String
-  jobId        String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @default(now())
+  id         String   @id @unique @default(uuid())
+  categoryId String
+  jobId      String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now())
 
   category     Category @relation(fields: [categoryId], references: [id])
   job          Job      @relation(fields: [jobId], references: [id], onUpdate: Cascade, onDelete: Cascade)

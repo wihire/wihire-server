@@ -24,3 +24,25 @@ exports.createJob = Joi.object({
   categories: Joi.array().min(1).required(),
   skills: Joi.array().min(1).required(),
 });
+
+exports.updateJob = Joi.object({
+  title: Joi.string().min(4).max(255).required(),
+  minimalSalary: Joi.number().min(100_000),
+  maximalSalary: Joi.number().min(100_000),
+  province: Joi.string().required().required(),
+  address: Joi.string().required().required(),
+  placeMethod: Joi.string()
+    .valid(...Object.values(PLACE_METHOD))
+    .required(),
+  jobType: Joi.string()
+    .valid(...Object.values(JOB_TYPE))
+    .required(),
+  description: Joi.string(),
+  minimumQualification: Joi.string(),
+  benefits: Joi.string(),
+  status: Joi.string()
+    .valid(...Object.values(JOB_STATUS))
+    .required(),
+  categories: Joi.array().min(1).required(),
+  skills: Joi.array().min(1).required(),
+});
