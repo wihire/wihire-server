@@ -366,6 +366,7 @@ class JobService {
       include: {
         company: {
           include: {
+            totalEmployee: true,
             profile: {
               select: {
                 id: true,
@@ -513,6 +514,7 @@ class JobService {
     const jobCompanyProfile = jobRaw.company.profile;
     const jobSkills = jobRaw.skills.map((skill) => skill.skill.title);
     const jobCategories = jobRaw.categories.map((category) => category.category.title);
+    const totalEmployee = jobRaw.company.totalEmployee.total;
 
     delete jobRaw.company;
     delete jobRaw.companyId;
@@ -524,6 +526,7 @@ class JobService {
       ...jobRaw,
       company: {
         profile: jobCompanyProfile,
+        totalEmployee,
       },
       skills: jobSkills,
       categories: jobCategories,
