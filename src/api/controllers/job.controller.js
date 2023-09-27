@@ -110,9 +110,10 @@ class JobController {
         limit: +limit,
       };
 
-      const totalJobs = await JobService.getJobTotal(req.user.user.id, filters);
+      const userId = req.user.role === ROLE.USER ? req.user.user.id : req.user.company.id;
+      const totalJobs = await JobService.getJobTotal(userId, filters);
       const pagination = getPaginationStatus(page, limit, totalJobs);
-      const jobs = await JobService.getAllJobs(req.user.user.id, filters);
+      const jobs = await JobService.getAllJobs(userId, filters);
 
       return res.status(200).json(
         successResponse({

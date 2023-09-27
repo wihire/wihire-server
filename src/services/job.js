@@ -137,7 +137,6 @@ class JobService {
         }),
       );
 
-      console.log(job);
       const jobHasRangeSalary = job?.salaryId;
       const deleteRangeSalary = jobHasRangeSalary && !payload?.minimalSalary;
       let salaryQuery = {};
@@ -279,7 +278,6 @@ class JobService {
   };
 
   static getJobTotal = async (userId, filters) => {
-    console.log(JobService.#getJobsFilter(filters));
     const totalJob = await prisma.job.count({
       where: {
         ...JobService.#getJobsFilter(userId, filters),
