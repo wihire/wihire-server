@@ -337,6 +337,9 @@ class JobService {
           },
         },
       },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
 
     const jobs = jobsRaw.map(this.simpleJobMapping);

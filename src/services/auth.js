@@ -238,7 +238,7 @@ class AuthService {
       to: payload.email,
       subject: 'Forgot Password',
       // eslint-disable-next-line max-len
-      text: `Click This Link For Change Password: http://localhost:3000/forgot-password?token=${forgotPasswordToken}`,
+      text: `Click This Link For Change Password: http://localhost:3000/forgot-change-password?token=${forgotPasswordToken}`,
     });
   };
 
