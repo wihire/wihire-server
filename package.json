@@ -9,7 +9,10 @@
     "prettier:format": "prettier --write \"src/**/*.js\"",
     "lint": "eslint \"src/**/*.js\" --fix",
     "lint:check": "eslint \"src/**/*.js\"",
-    "prepare:husky": "husky install"
+    "prepare:husky": "husky install",
+    "prisma": "prisma",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:seed": "prisma db seed"
   },
   "keywords": [],
   "author": "Jovanka Samudra",
@@ -24,21 +27,31 @@
     "dotenv": "^16.3.1",
     "eslint": "^8.49.0",
     "eslint-config-prettier": "^9.0.0",
+    "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.28.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.1.1",
+    "husky": "^8.0.3",
     "nodemon": "^3.0.1",
     "prettier": "^3.0.3"
   },
   "dependencies": {
     "@prisma/client": "^5.2.0",
     "bcrypt": "^5.1.1",
+    "cloudinary": "^1.40.0",
     "cors": "^2.8.5",
-    "eslint-config-standard": "^17.1.0",
+    "datauri": "^4.1.0",
     "express": "^4.18.2",
-    "husky": "^8.0.3",
+    "firebase": "^10.4.0",
+    "googleapis": "^126.0.1",
     "joi": "^17.10.1",
     "jsonwebtoken": "^9.0.2",
-    "prisma": "^5.2.0"
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.5",
+    "prisma": "^5.2.0",
+    "slugify": "^1.6.6"
+  },
+  "prisma": {
+    "seed": "node prisma/seeds/index.js"
   }
 }

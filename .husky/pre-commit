@@ -19,7 +19,7 @@ echo 'Checking for linting errors...'
 yarn lint:check ||
 (
   echo '❌ ESLint Check Failed.'
-  echo 'Eslnit check failed. Manually fixing, add changes and try to commit again.'
+  echo 'Eslnit check failed. Run yarn lint or manualy changes, add changes and try to commit again.'
   false;  
 )
 
