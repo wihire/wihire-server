@@ -1,6 +1,8 @@
 const { successResponse } = require('../../lib/response');
 const userValidation = require('../../validations/user');
 const SkillService = require('../../services/skill');
+const { isNumber } = require('../../lib/common');
+const { getPaginationStatus } = require('../../lib/pagination');
 
 class SkillController {
   static getDetailSkill = async (req, res, next) => {
@@ -80,6 +82,37 @@ class SkillController {
       return res.status(200).json(
         successResponse({
           message: 'Success delete skill',
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  static getAll = async (req, res, next) => {
+    try {
+      let { page, limit } = req.query;
+
+      if (!page || !isNumber(page)) page = 1;
+      if (!limit || !isNumber(limit)) limit = 15;
+
+      const filters = {
+        ...req.query,
+        page,
+        limit,
+      };
+
+      const totalData = await SkillService.getAllCount(filters);
+      const skills = await SkillService.getAll(filters);
+      const pagination = getPaginationStatus(page, limit, totalData);
+
+      res.status(200).json(
+        successResponse({
+          message: 'Get all skill successfully',
+          data: {
+            skills,
+          },
+          pagination,
         }),
       );
     } catch (error) {
