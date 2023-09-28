@@ -34,6 +34,27 @@ class CategoryController {
       next(error);
     }
   };
+
+  static getMostSeven = async (req, res, next) => {
+    try {
+      const filters = {
+        ...req.query,
+      };
+
+      const categoriesMostSeven = await CategoryService.getMostSeven(filters);
+
+      res.status(200).json(
+        successResponse({
+          message: 'Get top 7 categories successfully',
+          data: {
+            categories: categoriesMostSeven,
+          },
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 module.exports = CategoryController;
