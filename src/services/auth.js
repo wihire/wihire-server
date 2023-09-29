@@ -184,7 +184,7 @@ class AuthService {
       to: email,
       subject: 'Email Verification',
       // eslint-disable-next-line max-len
-      text: `Please verify your email: http://localhost:3000/auth/verify-email?token=${verifyEmailToken}`,
+      text: `Please verify your email: http://localhost:3000/verify-email?token=${verifyEmailToken}`,
     });
   };
 
