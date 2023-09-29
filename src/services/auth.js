@@ -43,6 +43,7 @@ class AuthService {
     return {
       accessToken,
       profile: {
+        slug: profile.slug,
         isVerifiedEmail: profile.isVerifiedEmail,
       },
     };
@@ -211,6 +212,7 @@ class AuthService {
     return {
       accessToken,
       profile: {
+        slug: profile.slug,
         isVerifiedEmail: profile.isVerifiedEmail,
       },
     };
