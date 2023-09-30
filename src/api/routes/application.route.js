@@ -11,5 +11,11 @@ router.get(
   authorization([ROLE.USER]),
   ApplicationController.getApplicationUser,
 );
+router.get(
+  '/:jobSlug/check',
+  authentication,
+  authorization([ROLE.USER]),
+  ApplicationController.checkApplication,
+);
 
 module.exports = router;
