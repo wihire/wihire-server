@@ -224,6 +224,10 @@ class JobService {
           },
         },
       },
+      address: {
+        contains: filters?.address,
+        mode: 'insensitive',
+      },
       categories: {
         some: {
           category: {
