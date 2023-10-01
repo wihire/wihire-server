@@ -222,7 +222,14 @@ class JobService {
             contains: filters?.company,
             mode: 'insensitive',
           },
+          slug: {
+            equals: filters?.slug,
+          },
         },
+      },
+      address: {
+        contains: filters?.address,
+        mode: 'insensitive',
       },
       categories: {
         some: {
