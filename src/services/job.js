@@ -222,6 +222,9 @@ class JobService {
             contains: filters?.company,
             mode: 'insensitive',
           },
+          slug: {
+            equals: filters?.slug,
+          },
         },
       },
       address: {

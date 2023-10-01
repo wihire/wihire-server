@@ -3,6 +3,6 @@ const CategoryController = require('../controllers/category.controller');
 const router = require('express').Router();
 
 router.get('/', CategoryController.getAll);
-router.get('/mostseven', CategoryController.getMostSeven);
+router.get('/most-seven', CategoryController.getMostSeven);
 
 module.exports = router;

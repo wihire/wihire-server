@@ -32,27 +32,8 @@ class CategoryService {
     return categoriesCount;
   };
 
-  static getMostSeven = async (filters) => {
+  static getMostSeven = async () => {
     const categoriesMostSeven = prisma.category.findMany({
-      where: {
-        title: {
-          contains: filters?.title,
-          mode: 'insensitive',
-        },
-      },
-      select: {
-        id: true,
-        title: true,
-        jobCategories: {
-          select: {
-            job: {
-              select: {
-                id: true,
-              },
-            },
-          },
-        },
-      },
       orderBy: {
         jobCategories: {
           _count: 'desc',

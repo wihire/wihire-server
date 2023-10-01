@@ -37,11 +37,7 @@ class CategoryController {
 
   static getMostSeven = async (req, res, next) => {
     try {
-      const filters = {
-        ...req.query,
-      };
-
-      const categoriesMostSeven = await CategoryService.getMostSeven(filters);
+      const categoriesMostSeven = await CategoryService.getMostSeven();
 
       res.status(200).json(
         successResponse({
