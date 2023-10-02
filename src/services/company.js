@@ -56,7 +56,7 @@ class CompanyService {
           throw new NotFoundError('Company total employee not found');
         }
 
-        const profileUpdated = await prisma.profile.update({
+        const profileUpdated = await tx.profile.update({
           where: {
             id: profile.id,
           },

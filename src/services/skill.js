@@ -103,6 +103,37 @@ class SkillService {
       throw error;
     }
   };
+
+  static getAll = async (filters) => {
+    const skills = prisma.skill.findMany({
+      where: {
+        title: {
+          contains: filters?.title,
+          mode: 'insensitive',
+        },
+      },
+      skip: (filters.page - 1) * filters.limit,
+      take: filters.limit,
+      orderBy: {
+        title: 'asc',
+      },
+    });
+
+    return skills;
+  };
+
+  static getAllCount = async (filters) => {
+    const skillsCount = prisma.skill.count({
+      where: {
+        title: {
+          contains: filters?.title,
+          mode: 'insensitive',
+        },
+      },
+    });
+
+    return skillsCount;
+  };
 }
 
 module.exports = SkillService;

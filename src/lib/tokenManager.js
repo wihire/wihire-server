@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 
 const { TOKEN_EXPIRED_ERR_MSG, TOKEN_INVALID_ERR_MSG } = require('../constants/errorMessage');
-const { TOKEN_ERR } = require('../constants/errorType');
+const { TOKEN_ERR, TOKEN_EXPIRED_ERR } = require('../constants/errorType');
 const InvariantError = require('../exceptions/InvariantError');
 
 exports.createToken = ({ payload, secret, options }) => jwt.sign(payload, secret, options);
@@ -19,7 +19,7 @@ exports.decodeToken = (token, secretKey) =>
         } else if (error.message === 'jwt expired') {
           reject(
             new InvariantError(TOKEN_EXPIRED_ERR_MSG, {
-              type: TOKEN_ERR,
+              type: TOKEN_EXPIRED_ERR,
             }),
           );
         }

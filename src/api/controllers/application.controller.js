@@ -49,6 +49,29 @@ class ApplicationController {
       next(error);
     }
   };
+
+  static checkApplication = async (req, res, next) => {
+    try {
+      const { user } = req.user;
+      const { jobSlug } = req.params;
+
+      const application = await ApplicationService.checkApplication({
+        userId: user.id,
+        jobSlug,
+      });
+
+      return res.status(200).json(
+        successResponse({
+          message: 'Application checked',
+          data: {
+            application,
+          },
+        }),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 module.exports = ApplicationController;

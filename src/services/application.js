@@ -1,3 +1,4 @@
+const NotFoundError = require('../exceptions/NotFoundError');
 const prisma = require('../lib/prisma');
 const JobService = require('./job');
 
@@ -36,6 +37,9 @@ class ApplicationService {
       },
       skip: (page - 1) * limit,
       take: limit,
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
 
     applications.forEach((application) => {
@@ -57,6 +61,34 @@ class ApplicationService {
     });
 
     return totalApplication;
+  };
+
+  static checkApplication = async ({ userId, jobSlug }) => {
+    const job = await prisma.job.findFirst({
+      where: {
+        slug: jobSlug,
+      },
+    });
+
+    if (!job) {
+      throw new NotFoundError('Job not found');
+    }
+
+    const application = await prisma.applicationList.findFirst({
+      where: {
+        userId,
+        jobId: job.id,
+      },
+    });
+
+    if (!application) {
+      throw new NotFoundError('Application not found');
+    }
+
+    delete application.userId;
+    delete application.jobId;
+
+    return application;
   };
 }
 
