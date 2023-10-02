@@ -31,6 +31,19 @@ class CategoryService {
 
     return categoriesCount;
   };
+
+  static getMostSeven = async () => {
+    const categoriesMostSeven = prisma.category.findMany({
+      orderBy: {
+        jobCategories: {
+          _count: 'desc',
+        },
+      },
+      take: 7,
+    });
+
+    return categoriesMostSeven;
+  };
 }
 
 module.exports = CategoryService;
