@@ -6,7 +6,7 @@ const ProfileService = require('./profile');
 const ROLE = require('../constants/role');
 
 class ApplicantService {
-  static getApplicantsJob = async ({ jobSlug, companyId, page, limit }) => {
+  static getApplicantsJob = async ({ jobSlug, companyId, filters }) => {
     const job = await JobService.getBySlug(jobSlug);
 
     if (job.company.id !== companyId) {
@@ -16,6 +16,7 @@ class ApplicantService {
     const applicationsJobRaw = await prisma.applicationList.findMany({
       where: {
         jobId: job.id,
+        status: filters?.status,
       },
       select: {
         user: {
@@ -31,6 +32,8 @@ class ApplicantService {
             profile: {
               select: {
                 slug: true,
+                name: true,
+                email: true,
                 avatar: true,
                 province: true,
                 address: true,
@@ -43,8 +46,11 @@ class ApplicantService {
         createdAt: true,
         updatedAt: true,
       },
-      skip: (page - 1) * limit,
-      take: limit,
+      skip: (filters?.page - 1) * filters?.limit,
+      take: filters?.limit,
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
 
     const applicationsJob = applicationsJobRaw.map((application) => ({

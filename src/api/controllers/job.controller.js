@@ -137,11 +137,16 @@ class JobController {
       if (!page || !isNumber(page)) page = 1;
       if (!limit || !isNumber(limit)) limit = 15;
 
+      const filters = {
+        ...req.query,
+        page: +page,
+        limit: +limit,
+      };
+
       const applicants = await ApplicantService.getApplicantsJob({
         jobSlug: slug,
         companyId: req.user.company.id,
-        page: +page,
-        limit: +limit,
+        filters,
       });
       const totalData = await ApplicantService.getApplicantTotal(slug);
 
