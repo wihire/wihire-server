@@ -4,6 +4,7 @@
   "main": "src/server.js",
   "scripts": {
     "start:dev": "cross-env NODE_ENV=development nodemon src/server.js",
+    "start:docker": "prisma migrate dev && prisma db seed && cross-env NODE_ENV=development nodemon src/server.js",
     "start": "cross-env NODE_ENV=production node src/server.js",
     "prettier:check": "prettier --check \"src/**/*.js\"",
     "prettier:format": "prettier --write \"src/**/*.js\"",
