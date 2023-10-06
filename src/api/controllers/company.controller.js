@@ -24,6 +24,7 @@ class CompanyController {
             user: {
               id: profileUpdated.company.id,
               slug: profileUpdated.slug,
+              avatar: profileUpdated.avatar,
             },
           },
         }),
