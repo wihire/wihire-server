@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
 enum Role {
@@ -84,15 +85,15 @@ model User {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @default(now()) @updatedAt
 
-  profile             Profile  @relation(fields: [profileId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  salaryExpectation   Salary?  @relation(fields: [salaryExpectationId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  projects            UserProject[]
-  educations          UserEducation[]
-  workExperiencies    UserWorkExperience[]
-  certificates        UserCertificate[]
-  skills              UserSkill[]
-  savedJobs           SavedJob[]
-  applicants          ApplicationList[]
+  profile           Profile              @relation(fields: [profileId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  salaryExpectation Salary?              @relation(fields: [salaryExpectationId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  projects          UserProject[]
+  educations        UserEducation[]
+  workExperiencies  UserWorkExperience[]
+  certificates      UserCertificate[]
+  skills            UserSkill[]
+  savedJobs         SavedJob[]
+  applicants        ApplicationList[]
 }
 
 model Company {
@@ -279,14 +280,14 @@ model Category {
 }
 
 model JobCategory {
-  id           String   @id @unique @default(uuid())
-  categoryId   String
-  jobId        String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @default(now()) @updatedAt
+  id         String   @id @unique @default(uuid())
+  categoryId String
+  jobId      String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
 
-  category     Category @relation(fields: [categoryId], references: [id])
-  job          Job      @relation(fields: [jobId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id])
+  job      Job      @relation(fields: [jobId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model ApplicationList {
