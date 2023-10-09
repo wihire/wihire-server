@@ -85,6 +85,29 @@ class ApplicantService {
       throw new NotFoundError('Job not found at your company');
     }
 
+    const allApplicant = await prisma.applicationList.findMany({
+      where: {
+        jobId: job.id,
+      },
+      select: {
+        user: {
+          select: {
+            profile: {
+              select: {
+                email: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const applicantEmail = allApplicant.map((data) => ({
+      email: data.user.profile.email,
+    }));
+
+    const stringApplicantEmail = applicantEmail.map((item) => item.email);
+
     const rejectedApplicant = await prisma.applicationList.updateMany({
       where: {
         jobId: job.id,
@@ -104,6 +127,20 @@ class ApplicantService {
       data: {
         status: STATUS_APPLICATION.DECLINE,
       },
+    });
+
+    await sendEmail({
+      to: stringApplicantEmail,
+      subject: 'Unfortunately!',
+      // eslint-disable-next-line max-len
+      html: emailApplicationStatus({
+        callbackUrl: `http://localhost:3000/jobs/${job.slug}`,
+        title: `Unfortunately! Your application at
+        ${job.company.profile.name} as ${job.title} has been declined`,
+        buttonText: 'Declined',
+        description: `Don't be sad, there are still many job opportunities
+        available at WiHire, keep it up!`,
+      }),
     });
 
     return rejectedApplicant;
@@ -151,7 +188,7 @@ class ApplicantService {
     if (payload.status === STATUS_APPLICATION.DECLINE) {
       await sendEmail({
         to: profileUser.email,
-        subject: 'Sad!',
+        subject: 'Unfortunately!',
         // eslint-disable-next-line max-len
         html: emailApplicationStatus({
           callbackUrl: `http://localhost:3000/jobs/${job.slug}`,
