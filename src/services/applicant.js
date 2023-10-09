@@ -4,6 +4,8 @@ const STATUS_APPLICATION = require('../constants/statusApplication');
 const NotFoundError = require('../exceptions/NotFoundError');
 const ProfileService = require('./profile');
 const ROLE = require('../constants/role');
+const { sendEmail } = require('../lib/nodemailer');
+const { emailApplicationStatus } = require('../constants/emailHtml');
 
 class ApplicantService {
   static getApplicantsJob = async ({ jobSlug, companyId, filters }) => {
@@ -129,6 +131,37 @@ class ApplicantService {
 
     if (updatedApplication.count < 1) {
       throw new NotFoundError('Application not found at this job');
+    }
+
+    if (payload.status === STATUS_APPLICATION.APPROVED) {
+      await sendEmail({
+        to: profileUser.email,
+        subject: 'Congratulations!',
+        // eslint-disable-next-line max-len
+        html: emailApplicationStatus({
+          callbackUrl: `http://localhost:3000/jobs/${job.slug}`,
+          title: `Congratulations! Your application at 
+          ${job.company.profile.name} as ${job.title} has been Approved`,
+          buttonText: 'Approved',
+          description: 'For further information, please contact the company where you are applying',
+        }),
+      });
+    }
+
+    if (payload.status === STATUS_APPLICATION.DECLINE) {
+      await sendEmail({
+        to: profileUser.email,
+        subject: 'Sad!',
+        // eslint-disable-next-line max-len
+        html: emailApplicationStatus({
+          callbackUrl: `http://localhost:3000/jobs/${job.slug}`,
+          title: `Unfortunately! Your application at 
+          ${job.company.profile.name} as ${job.title} has been declined`,
+          buttonText: 'Declined',
+          description: `Don't be sad, there are still many job opportunities 
+          available at WiHire, keep it up!`,
+        }),
+      });
     }
   };
 
