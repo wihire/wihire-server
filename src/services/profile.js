@@ -106,7 +106,6 @@ class ProfileService {
       delete profile.company;
       delete profile.user.profileId;
       delete profile.user.salaryExpectationId;
-      delete profile.user.birthDate;
       delete profile.user.createdAt;
       delete profile.user.updatedAt;
     }

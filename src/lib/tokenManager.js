@@ -48,7 +48,7 @@ exports.generateVerifyEmailToken = ({ id, email }) => {
     payload: { id, email },
     secret: process.env.VERIFY_EMAIL_TOKEN_SECRET_KEY,
     options: {
-      expiresIn: '3m',
+      expiresIn: '2m',
     },
   });
 

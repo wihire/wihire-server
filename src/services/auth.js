@@ -13,6 +13,7 @@ const ClientError = require('../exceptions/ClientError');
 const { CONFLICT_ERR } = require('../constants/errorType');
 const NotFoundError = require('../exceptions/NotFoundError');
 const { sendEmail } = require('../lib/nodemailer');
+const { emailVerificationTemplate } = require('../constants/emailHtml');
 
 class AuthService {
   static login = async ({ email, password }) => {
@@ -185,7 +186,12 @@ class AuthService {
       to: email,
       subject: 'Email Verification',
       // eslint-disable-next-line max-len
-      text: `Please verify your email: http://localhost:3000/verify-email?token=${verifyEmailToken}`,
+      html: emailVerificationTemplate({
+        callbackUrl: `http://localhost:3000/verify-email?token=${verifyEmailToken}`,
+        title: 'Email Verification',
+        buttonText: 'Verify Email',
+        description: 'Please verify your email',
+      }),
     });
   };
 
@@ -240,7 +246,14 @@ class AuthService {
       to: payload.email,
       subject: 'Forgot Password',
       // eslint-disable-next-line max-len
-      text: `Click This Link For Change Password: http://localhost:3000/forgot-change-password?token=${forgotPasswordToken}`,
+      // text: `Click This Link For Change Password: http://localhost:3000/forgot-change-password?token=${forgotPasswordToken}`,
+      html: emailVerificationTemplate({
+        callbackUrl: `http://localhost:3000/forgot-change-password?token=${forgotPasswordToken}`,
+        title: 'Forgot Password',
+        buttonText: 'Change Password',
+        description: 'Please change your password',
+      }),
+      // html: `<p>Hello</p>`,
     });
   };
 
