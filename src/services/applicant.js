@@ -88,6 +88,18 @@ class ApplicantService {
     const allApplicant = await prisma.applicationList.findMany({
       where: {
         jobId: job.id,
+        NOT: [
+          {
+            OR: [
+              {
+                status: STATUS_APPLICATION.DECLINE,
+              },
+              {
+                status: STATUS_APPLICATION.APPROVED,
+              },
+            ],
+          },
+        ],
       },
       select: {
         user: {
@@ -128,6 +140,8 @@ class ApplicantService {
         status: STATUS_APPLICATION.DECLINE,
       },
     });
+
+    console.log(stringApplicantEmail, '<<<<<<<<<<<<<<<<<');
 
     await sendEmail({
       to: stringApplicantEmail,
