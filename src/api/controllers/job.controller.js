@@ -41,7 +41,7 @@ class JobController {
       const { slug } = req.params;
       const job = await JobService.update(slug, req.body);
 
-      return res.status(201).json(
+      return res.status(200).json(
         successResponse({
           message: 'Update job succcess',
           data: {
