@@ -185,7 +185,6 @@ class AuthService {
     await sendEmail({
       to: email,
       subject: 'Email Verification',
-      // eslint-disable-next-line max-len
       html: emailVerificationTemplate({
         callbackUrl: `http://localhost:3000/verify-email?token=${verifyEmailToken}`,
         title: 'Email Verification',
@@ -245,15 +244,12 @@ class AuthService {
     await sendEmail({
       to: payload.email,
       subject: 'Forgot Password',
-      // eslint-disable-next-line max-len
-      // text: `Click This Link For Change Password: http://localhost:3000/forgot-change-password?token=${forgotPasswordToken}`,
       html: emailVerificationTemplate({
         callbackUrl: `http://localhost:3000/forgot-change-password?token=${forgotPasswordToken}`,
         title: 'Forgot Password',
         buttonText: 'Change Password',
         description: 'Please change your password',
       }),
-      // html: `<p>Hello</p>`,
     });
   };
 

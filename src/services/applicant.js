@@ -114,11 +114,7 @@ class ApplicantService {
       },
     });
 
-    const applicantEmail = allApplicant.map((data) => ({
-      email: data.user.profile.email,
-    }));
-
-    const stringApplicantEmail = applicantEmail.map((item) => item.email);
+    const applicantEmail = allApplicant.map((data) => data.user.profile.email);
 
     const rejectedApplicant = await prisma.applicationList.updateMany({
       where: {
@@ -141,12 +137,9 @@ class ApplicantService {
       },
     });
 
-    console.log(stringApplicantEmail, '<<<<<<<<<<<<<<<<<');
-
     await sendEmail({
-      to: stringApplicantEmail,
+      to: applicantEmail,
       subject: 'Unfortunately!',
-      // eslint-disable-next-line max-len
       html: emailApplicationStatus({
         callbackUrl: `http://localhost:3000/jobs/${job.slug}`,
         title: `Unfortunately! Your application at
@@ -188,7 +181,6 @@ class ApplicantService {
       await sendEmail({
         to: profileUser.email,
         subject: 'Congratulations!',
-        // eslint-disable-next-line max-len
         html: emailApplicationStatus({
           callbackUrl: `http://localhost:3000/jobs/${job.slug}`,
           title: `Congratulations! Your application at 
