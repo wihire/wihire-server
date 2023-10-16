@@ -141,7 +141,7 @@ class ApplicantService {
       to: applicantEmail,
       subject: 'Unfortunately!',
       html: emailApplicationStatus({
-        callbackUrl: `http://localhost:3000/jobs/${job.slug}`,
+        callbackUrl: `${process.env.FRONTEND_URL}/jobs/${job.slug}`,
         title: `Unfortunately! Your application at
         ${job.company.profile.name} as ${job.title} has been declined`,
         buttonText: 'Declined',
@@ -182,7 +182,7 @@ class ApplicantService {
         to: profileUser.email,
         subject: 'Congratulations!',
         html: emailApplicationStatus({
-          callbackUrl: `http://localhost:3000/jobs/${job.slug}`,
+          callbackUrl: `${process.env.FRONTEND_URL}/jobs/${job.slug}`,
           title: `Congratulations! Your application at 
           ${job.company.profile.name} as ${job.title} has been Approved`,
           buttonText: 'Approved',
@@ -197,7 +197,7 @@ class ApplicantService {
         subject: 'Unfortunately!',
         // eslint-disable-next-line max-len
         html: emailApplicationStatus({
-          callbackUrl: `http://localhost:3000/jobs/${job.slug}`,
+          callbackUrl: `${process.env.FRONTEND_URL}/jobs/${job.slug}`,
           title: `Unfortunately! Your application at 
           ${job.company.profile.name} as ${job.title} has been declined`,
           buttonText: 'Declined',

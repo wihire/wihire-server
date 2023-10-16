@@ -186,7 +186,7 @@ class AuthService {
       to: email,
       subject: 'Email Verification',
       html: emailVerificationTemplate({
-        callbackUrl: `http://localhost:3000/verify-email?token=${verifyEmailToken}`,
+        callbackUrl: `${process.env.FRONTEND_URL}/verify-email?token=${verifyEmailToken}`,
         title: 'Email Verification',
         buttonText: 'Verify Email',
         description: 'Please verify your email',
@@ -245,7 +245,8 @@ class AuthService {
       to: payload.email,
       subject: 'Forgot Password',
       html: emailVerificationTemplate({
-        callbackUrl: `http://localhost:3000/forgot-change-password?token=${forgotPasswordToken}`,
+        // eslint-disable-next-line max-len
+        callbackUrl: `${process.env.FRONTEND_URL}/forgot-change-password?token=${forgotPasswordToken}`,
         title: 'Forgot Password',
         buttonText: 'Change Password',
         description: 'Please change your password',
