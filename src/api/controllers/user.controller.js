@@ -26,6 +26,7 @@ class UserController {
             user: {
               id: profileUpdated.user.id,
               slug: profileUpdated.slug,
+              avatar: profileUpdated.avatar,
             },
           },
         }),

@@ -13,7 +13,9 @@
     "prepare:husky": "husky install",
     "prisma": "prisma",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:seed": "prisma db seed"
+    "prisma:seed": "prisma db seed",
+    "prisma:seed:dev": "prisma db seed -- --environment development",
+    "vercel-build": "prisma generate && prisma migrate dev"
   },
   "keywords": [],
   "author": "Jovanka Samudra",
@@ -21,7 +23,7 @@
   "engines": {
     "npm": "please-use-yarn",
     "yarn": ">= 1.17.3",
-    "node": ">= 16.13.0"
+    "node": ">= 16.17.0"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",

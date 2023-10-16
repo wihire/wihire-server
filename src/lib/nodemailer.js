@@ -40,7 +40,7 @@ const createTransporter = async () => {
 exports.sendEmail = async (options) => {
   const transporter = await createTransporter();
   const sendMailData = await transporter.sendMail({
-    from: process.env.MAIL_USERNAME,
+    from: 'WiHire' + ' <' + process.env.MAIL_USERNAME + '>',
     to: options.to,
     subject: options.subject,
     text: options?.text,
