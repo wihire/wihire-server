@@ -1,3 +1,9 @@
+const { parseArgs } = require('node:util');
+
+const options = {
+  environment: { type: 'string' },
+};
+
 const prisma = require('../../src/lib/prisma');
 
 const seedCompanyIndustryScope = require('./companyIndustryScope');
@@ -20,25 +26,37 @@ const seedUserWorkExperience = require('./userWorkExperience');
 const seedUserCertificate = require('./userCertificate');
 
 async function main() {
+  const {
+    values: { environment },
+  } = parseArgs({ options });
+
   await seedCompanyTotalEmployee();
   await seedCompanyIndustryScope();
   await seedSkill();
   await seedSalary();
-  await seedCompany();
-  await seedUser();
-  await seedJob();
-  await seedJobSkill();
   await seedCategories();
-  await seedJobCategories();
-  await seedSavedJob();
-  await seedApplicationList();
-  await seedSavedjob();
-  await seedUserEducation();
-  await seedUserSkill();
-  await seedUserProject();
-  await seedUserWorkExperience();
-  await seedUserCertificate();
-};
+
+  switch (environment) {
+    case 'development':
+      await seedCompany();
+      await seedUser();
+      await seedJob();
+      await seedJobSkill();
+      await seedJobCategories();
+      await seedSavedJob();
+      await seedApplicationList();
+      await seedSavedjob();
+      await seedUserEducation();
+      await seedUserSkill();
+      await seedUserProject();
+      await seedUserWorkExperience();
+      await seedUserCertificate();
+
+      break;
+    default:
+      break;
+  }
+}
 
 main()
   .then(async () => {
